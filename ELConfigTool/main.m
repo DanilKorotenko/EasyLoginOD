@@ -161,7 +161,7 @@
     
     odConfig.defaultModuleEntries = @[odModuleEntry];
     odConfig.comment = @"Cloud Directory Service module for Open Directory.";
-    odConfig.nodeName = @"/EL";
+    odConfig.nodeName = @"/EasyLogin";
 
     BOOL success = [odSession addConfiguration:odConfig authorization:sfAuth error:&error];
 
@@ -218,7 +218,7 @@
         NSLog(@"EL Auth OK %@", sfAuth);
     }
     
-    BOOL success = [odSession deleteConfigurationWithNodename:@"/EL" authorization:sfAuth error:&error];
+    BOOL success = [odSession deleteConfigurationWithNodename:@"/EasyLogin" authorization:sfAuth error:&error];
     
     if (!success) {
         NSLog(@"EL Delete config failed with error:\n%@", error);

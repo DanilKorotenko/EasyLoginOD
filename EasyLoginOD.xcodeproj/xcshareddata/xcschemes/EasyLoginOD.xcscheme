@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "F8AB63BC1E111AB900FE9FC8"
-               BuildableName = "com.abelionni.EasyLoginOD.xpc"
+               BuildableName = "io.easylogin.EasyLoginOD.xpc"
                BlueprintName = "EasyLoginOD"
                ReferencedContainer = "container:EasyLoginOD.xcodeproj">
             </BuildableReference>
@@ -65,14 +65,13 @@
       </PreActions>
       <PathRunnable
          runnableDebuggingMode = "0"
-         BundleIdentifier = "com.abelionni.CloudDirectoryServiceModule"
-         FilePath = "/Library/OpenDirectory/Modules/com.abelionni.CloudDirectoryServiceModule.xpc">
+         FilePath = "/Library/OpenDirectory/Modules/io.easylogin.EasyLoginOD.xpc">
       </PathRunnable>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F8AB63BC1E111AB900FE9FC8"
-            BuildableName = "com.abelionni.EasyLoginOD.xpc"
+            BuildableName = "io.easylogin.EasyLoginOD.xpc"
             BlueprintName = "EasyLoginOD"
             ReferencedContainer = "container:EasyLoginOD.xcodeproj">
          </BuildableReference>
@@ -90,7 +89,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F8AB63BC1E111AB900FE9FC8"
-            BuildableName = "com.abelionni.EasyLoginOD.xpc"
+            BuildableName = "io.easylogin.EasyLoginOD.xpc"
             BlueprintName = "EasyLoginOD"
             ReferencedContainer = "container:EasyLoginOD.xcodeproj">
          </BuildableReference>

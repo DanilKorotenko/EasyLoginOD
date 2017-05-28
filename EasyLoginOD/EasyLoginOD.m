@@ -251,7 +251,7 @@ static xpc_object_t ELCopyDetails(od_request_t request, od_connection_t connecti
      */
     
     // ygi: could be usefull to add customer ID or something like that.
-    // IT can access this info via dscl > read /EL
+    // IT can access this info via dscl > read /EasyLogin
     
     odrequest_log_message(request, eODLogDebug, CFSTR("******** EL Node info requested"));
     
@@ -341,7 +341,7 @@ static xpc_object_t ELCopyAuthInfo(od_request_t request, od_moduleconfig_t modul
          */
         returnValue = xpc_array_create(NULL, 0);
         xpc_array_append_cftype(returnValue, kODAuthenticationTypeClearText);
-        xpc_array_append_cftype(returnValue, kODAuthenticationTypeCRAM_MD5);
+//        xpc_array_append_cftype(returnValue, kODAuthenticationTypeCRAM_MD5);
         break;
         
         case eODAuthInfoMechanisms:
@@ -364,6 +364,8 @@ static eODCallbackResponse ELRecordVerifyPassword(od_request_t request, od_conne
      * This is called to verify a password of a user.  As with other authentication calls, addinfo_dict contains
      * additional information that may be useful to complete the authentication.
      */
+    
+#warning (ygi) Passwords sent to this method seems to always be in clear text when comming from the loginwindow or the shell. We need to check how this work when using file sharing and screen sharing.
     
     odrequest_log_message(request, eODLogDebug, CFSTR("******** EL record pasword check"));
     
@@ -469,12 +471,21 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
     odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with predicates %@"), humanReadablePredicateList);
     
     NSDictionary *hardcordedUser = @{
-                                     //@"shortname": @[ @"als" ], // commented out since "shortname" is supposed to be kODAttributeTypeRecordName
+//                                     @"type": @[ @"CloudUser" ],
+//                                     @"shortname": @[ @"als" ],
+//                                     @"displayname": @[ @"Alice Test" ],
+//                                     @"lastname": @[ @"Smith" ],
+//                                     @"firstname": @[ @"Alice" ],
+//                                     @"email": @[ @"alice@example.com" ],
+//                                     @"uuid": @[ @"52434084-BBBB-AAAA-AAAA-CFA42AAD554B" ],
+//                                     @"uid": @[ @"666" ],
+//                                     @"home": @[ @"/Users/als" ],
+//                                     @"shell": @[ @"/bin/zsh"],
+//                                     @"primarygroup": @[ @"20" ],
                                      
                                      kODAttributeTypeRecordType: @[ @"CloudUser" ],
                                      kODAttributeTypeRecordName: @[ @"als" ],
                                      kODAttributeTypeFullName: @[ @"Alice Smith" ],
-                                     //                                     @"username": @[ @"als@corp.example.com" ],
                                      kODAttributeTypeLastName: @[ @"Smith" ],
                                      kODAttributeTypeFirstName: @[ @"Alice" ],
                                      kODAttributeTypeEMailAddress: @[ @"alice@example.com" ],
@@ -501,7 +512,7 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
                 
                 if ([operator isEqualToString:@"OR"]) {
                     for (NSDictionary *predicate in [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateList]]) {
-                        NSArray *targetValues = [hardcordedUser objectForKey:[predicate objectForKey:[NSString stringWithUTF8String:kODKeyPredicateAttribute]]];
+                        NSArray *targetValues = [hardcordedUser objectForKey:[predicate objectForKey:[NSString stringWithUTF8String:kODKeyPredicateStdAttribute]]];
                         NSArray *lookedValues = [predicate objectForKey:[NSString stringWithUTF8String:kODKeyPredicateValueList]];
                         NSNumber *matchType = [predicate objectForKey:[NSString stringWithUTF8String:kODKeyPredicateMatchType]];
                         
@@ -580,7 +591,7 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
             } else {
                 odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with single predicate linked to CloudUser type"));
                 
-                NSArray *targetValues = [hardcordedUser objectForKey:[predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateAttribute]]];
+                NSArray *targetValues = [hardcordedUser objectForKey:[predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateStdAttribute]]];
                 NSArray *lookedValues = [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateValueList]];
                 NSNumber *matchType = [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateMatchType]];
                 

@@ -1,0 +1,452 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C4415AC91E8156650074ECA0 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C4415AC81E8156650074ECA0 /* CoreData.framework */; };
+		F80BEB6E1E3C0CE600B16E32 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F80BEB6D1E3C0CE600B16E32 /* main.m */; };
+		F80BEB731E3C0EF800B16E32 /* OpenDirectory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F80BEB721E3C0EF800B16E32 /* OpenDirectory.framework */; };
+		F80BEB751E3C144600B16E32 /* ELConfigTool in Copy CLI tools */ = {isa = PBXBuildFile; fileRef = F80BEB6B1E3C0CE600B16E32 /* ELConfigTool */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		F8AB63C11E111AB900FE9FC8 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8AB63C01E111AB900FE9FC8 /* CoreFoundation.framework */; };
+		F8AB63C51E111AB900FE9FC8 /* EasyLoginOD.h in Headers */ = {isa = PBXBuildFile; fileRef = F8AB63C41E111AB900FE9FC8 /* EasyLoginOD.h */; };
+		F8AB63C71E111AB900FE9FC8 /* EasyLoginOD.m in Sources */ = {isa = PBXBuildFile; fileRef = F8AB63C61E111AB900FE9FC8 /* EasyLoginOD.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXBuildRule section */
+		C4E7B6181E815AF600A3B1A0 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.model.coredata;
+			filePatterns = "*.xcdatamodeld";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			outputFiles = (
+			);
+			script = "# momc\n";
+		};
+/* End PBXBuildRule section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		F80BEB691E3C0CE600B16E32 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		F80BEB741E3C142900B16E32 /* Copy CLI tools */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				F80BEB751E3C144600B16E32 /* ELConfigTool in Copy CLI tools */,
+			);
+			name = "Copy CLI tools";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		C4415AC81E8156650074ECA0 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		F80BEB6B1E3C0CE600B16E32 /* ELConfigTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ELConfigTool; sourceTree = BUILT_PRODUCTS_DIR; };
+		F80BEB6D1E3C0CE600B16E32 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		F80BEB721E3C0EF800B16E32 /* OpenDirectory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenDirectory.framework; path = System/Library/Frameworks/OpenDirectory.framework; sourceTree = SDKROOT; };
+		F8AB63BD1E111AB900FE9FC8 /* io.easylogin.EasyLoginOD.xpc */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = io.easylogin.EasyLoginOD.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
+		F8AB63C01E111AB900FE9FC8 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
+		F8AB63C41E111AB900FE9FC8 /* EasyLoginOD.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EasyLoginOD.h; sourceTree = "<group>"; };
+		F8AB63C61E111AB900FE9FC8 /* EasyLoginOD.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EasyLoginOD.m; sourceTree = "<group>"; };
+		F8AB63CA1E111AB900FE9FC8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F80BEB681E3C0CE600B16E32 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F80BEB731E3C0EF800B16E32 /* OpenDirectory.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F8AB63BA1E111AB900FE9FC8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C4415AC91E8156650074ECA0 /* CoreData.framework in Frameworks */,
+				F8AB63C11E111AB900FE9FC8 /* CoreFoundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		F80BEB6C1E3C0CE600B16E32 /* ELConfigTool */ = {
+			isa = PBXGroup;
+			children = (
+				F80BEB6D1E3C0CE600B16E32 /* main.m */,
+			);
+			path = ELConfigTool;
+			sourceTree = "<group>";
+		};
+		F8AB63B41E111AB900FE9FC8 = {
+			isa = PBXGroup;
+			children = (
+				F8AB63C21E111AB900FE9FC8 /* EasyLoginOD */,
+				F80BEB6C1E3C0CE600B16E32 /* ELConfigTool */,
+				F8AB63BF1E111AB900FE9FC8 /* Frameworks */,
+				F8AB63BE1E111AB900FE9FC8 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F8AB63BE1E111AB900FE9FC8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F8AB63BD1E111AB900FE9FC8 /* io.easylogin.EasyLoginOD.xpc */,
+				F80BEB6B1E3C0CE600B16E32 /* ELConfigTool */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F8AB63BF1E111AB900FE9FC8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C4415AC81E8156650074ECA0 /* CoreData.framework */,
+				F80BEB721E3C0EF800B16E32 /* OpenDirectory.framework */,
+				F8AB63C01E111AB900FE9FC8 /* CoreFoundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F8AB63C21E111AB900FE9FC8 /* EasyLoginOD */ = {
+			isa = PBXGroup;
+			children = (
+				F8AB63C41E111AB900FE9FC8 /* EasyLoginOD.h */,
+				F8AB63C61E111AB900FE9FC8 /* EasyLoginOD.m */,
+				F8AB63CA1E111AB900FE9FC8 /* Info.plist */,
+			);
+			path = EasyLoginOD;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		F8AB63BB1E111AB900FE9FC8 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F8AB63C51E111AB900FE9FC8 /* EasyLoginOD.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		F80BEB6A1E3C0CE600B16E32 /* ELConfigTool */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F80BEB711E3C0CE600B16E32 /* Build configuration list for PBXNativeTarget "ELConfigTool" */;
+			buildPhases = (
+				F80BEB671E3C0CE600B16E32 /* Sources */,
+				F80BEB681E3C0CE600B16E32 /* Frameworks */,
+				F80BEB691E3C0CE600B16E32 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ELConfigTool;
+			productName = CDSConfigTool;
+			productReference = F80BEB6B1E3C0CE600B16E32 /* ELConfigTool */;
+			productType = "com.apple.product-type.tool";
+		};
+		F8AB63BC1E111AB900FE9FC8 /* EasyLoginOD */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F8AB63CD1E111AB900FE9FC8 /* Build configuration list for PBXNativeTarget "EasyLoginOD" */;
+			buildPhases = (
+				F8AB63B91E111AB900FE9FC8 /* Sources */,
+				F8AB63BA1E111AB900FE9FC8 /* Frameworks */,
+				F8AB63BB1E111AB900FE9FC8 /* Headers */,
+				F80BEB741E3C142900B16E32 /* Copy CLI tools */,
+				C4415AD01E8158480074ECA0 /* Resources */,
+			);
+			buildRules = (
+				C4E7B6181E815AF600A3B1A0 /* PBXBuildRule */,
+			);
+			dependencies = (
+			);
+			name = EasyLoginOD;
+			productName = CloudDirectoryServiceModule;
+			productReference = F8AB63BD1E111AB900FE9FC8 /* io.easylogin.EasyLoginOD.xpc */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F8AB63B51E111AB900FE9FC8 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0830;
+				ORGANIZATIONNAME = "Yoann Gini (Open Source Project)";
+				TargetAttributes = {
+					F80BEB6A1E3C0CE600B16E32 = {
+						CreatedOnToolsVersion = 8.0;
+						DevelopmentTeam = JXHB9UP6QZ;
+						ProvisioningStyle = Manual;
+					};
+					F8AB63BC1E111AB900FE9FC8 = {
+						CreatedOnToolsVersion = 8.2.1;
+						DevelopmentTeam = JXHB9UP6QZ;
+						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.Sandbox = {
+								enabled = 0;
+							};
+						};
+					};
+				};
+			};
+			buildConfigurationList = F8AB63B81E111AB900FE9FC8 /* Build configuration list for PBXProject "EasyLoginOD" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = F8AB63B41E111AB900FE9FC8;
+			productRefGroup = F8AB63BE1E111AB900FE9FC8 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F8AB63BC1E111AB900FE9FC8 /* EasyLoginOD */,
+				F80BEB6A1E3C0CE600B16E32 /* ELConfigTool */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C4415AD01E8158480074ECA0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F80BEB671E3C0CE600B16E32 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F80BEB6E1E3C0CE600B16E32 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F8AB63B91E111AB900FE9FC8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F8AB63C71E111AB900FE9FC8 /* EasyLoginOD.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		F80BEB6F1E3C0CE600B16E32 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				DEVELOPMENT_TEAM = JXHB9UP6QZ;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		F80BEB701E3C0CE600B16E32 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
+				DEVELOPMENT_TEAM = JXHB9UP6QZ;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		F8AB63CB1E111AB900FE9FC8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+			};
+			name = Debug;
+		};
+		F8AB63CC1E111AB900FE9FC8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = NO;
+			};
+			name = Release;
+		};
+		F8AB63CE1E111AB900FE9FC8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = JXHB9UP6QZ;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+					"$(PROJECT_DIR)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					__BUILDING_ODMODULE__,
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = EasyLoginOD/Info.plist;
+				INSTALL_PATH = /Library/OpenDirectory/Modules/;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACH_O_TYPE = mh_execute;
+				OTHER_LDFLAGS = "-lodmodule";
+				PRODUCT_BUNDLE_IDENTIFIER = io.easylogin.EasyLoginOD;
+				PRODUCT_NAME = io.easylogin.EasyLoginOD;
+				WRAPPER_EXTENSION = xpc;
+			};
+			name = Debug;
+		};
+		F8AB63CF1E111AB900FE9FC8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = JXHB9UP6QZ;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+					"$(PROJECT_DIR)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					__BUILDING_ODMODULE__,
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = EasyLoginOD/Info.plist;
+				INSTALL_PATH = /Library/OpenDirectory/Modules/;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACH_O_TYPE = mh_execute;
+				OTHER_LDFLAGS = "-lodmodule";
+				PRODUCT_BUNDLE_IDENTIFIER = io.easylogin.EasyLoginOD;
+				PRODUCT_NAME = io.easylogin.EasyLoginOD;
+				WRAPPER_EXTENSION = xpc;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F80BEB711E3C0CE600B16E32 /* Build configuration list for PBXNativeTarget "ELConfigTool" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F80BEB6F1E3C0CE600B16E32 /* Debug */,
+				F80BEB701E3C0CE600B16E32 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F8AB63B81E111AB900FE9FC8 /* Build configuration list for PBXProject "EasyLoginOD" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F8AB63CB1E111AB900FE9FC8 /* Debug */,
+				F8AB63CC1E111AB900FE9FC8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F8AB63CD1E111AB900FE9FC8 /* Build configuration list for PBXNativeTarget "EasyLoginOD" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F8AB63CE1E111AB900FE9FC8 /* Debug */,
+				F8AB63CF1E111AB900FE9FC8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F8AB63B51E111AB900FE9FC8 /* Project object */;
+}

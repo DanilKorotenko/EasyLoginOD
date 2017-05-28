@@ -10,10 +10,11 @@
 		C4415AC91E8156650074ECA0 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C4415AC81E8156650074ECA0 /* CoreData.framework */; };
 		F80BEB6E1E3C0CE600B16E32 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F80BEB6D1E3C0CE600B16E32 /* main.m */; };
 		F80BEB731E3C0EF800B16E32 /* OpenDirectory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F80BEB721E3C0EF800B16E32 /* OpenDirectory.framework */; };
-		F80BEB751E3C144600B16E32 /* ELConfigTool in Copy CLI tools */ = {isa = PBXBuildFile; fileRef = F80BEB6B1E3C0CE600B16E32 /* ELConfigTool */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		F80BEB751E3C144600B16E32 /* dsconfigel in Copy CLI tools */ = {isa = PBXBuildFile; fileRef = F80BEB6B1E3C0CE600B16E32 /* dsconfigel */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		F8AB63C11E111AB900FE9FC8 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8AB63C01E111AB900FE9FC8 /* CoreFoundation.framework */; };
 		F8AB63C51E111AB900FE9FC8 /* EasyLoginOD.h in Headers */ = {isa = PBXBuildFile; fileRef = F8AB63C41E111AB900FE9FC8 /* EasyLoginOD.h */; };
 		F8AB63C71E111AB900FE9FC8 /* EasyLoginOD.m in Sources */ = {isa = PBXBuildFile; fileRef = F8AB63C61E111AB900FE9FC8 /* EasyLoginOD.m */; };
+		F8D71E921EDB360C0087C938 /* Configuration.m in Sources */ = {isa = PBXBuildFile; fileRef = F8D71E911EDB360C0087C938 /* Configuration.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -28,6 +29,16 @@
 			script = "# momc\n";
 		};
 /* End PBXBuildRule section */
+
+/* Begin PBXContainerItemProxy section */
+		F8D71E8E1EDB35550087C938 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F8AB63B51E111AB900FE9FC8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F80BEB6A1E3C0CE600B16E32;
+			remoteInfo = dsconfigel;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		F80BEB691E3C0CE600B16E32 /* CopyFiles */ = {
@@ -45,7 +56,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
-				F80BEB751E3C144600B16E32 /* ELConfigTool in Copy CLI tools */,
+				F80BEB751E3C144600B16E32 /* dsconfigel in Copy CLI tools */,
 			);
 			name = "Copy CLI tools";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -54,7 +65,7 @@
 
 /* Begin PBXFileReference section */
 		C4415AC81E8156650074ECA0 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
-		F80BEB6B1E3C0CE600B16E32 /* ELConfigTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ELConfigTool; sourceTree = BUILT_PRODUCTS_DIR; };
+		F80BEB6B1E3C0CE600B16E32 /* dsconfigel */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = dsconfigel; sourceTree = BUILT_PRODUCTS_DIR; };
 		F80BEB6D1E3C0CE600B16E32 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		F80BEB721E3C0EF800B16E32 /* OpenDirectory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenDirectory.framework; path = System/Library/Frameworks/OpenDirectory.framework; sourceTree = SDKROOT; };
 		F8AB63BD1E111AB900FE9FC8 /* io.easylogin.EasyLoginOD.xpc */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = io.easylogin.EasyLoginOD.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -62,6 +73,8 @@
 		F8AB63C41E111AB900FE9FC8 /* EasyLoginOD.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EasyLoginOD.h; sourceTree = "<group>"; };
 		F8AB63C61E111AB900FE9FC8 /* EasyLoginOD.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EasyLoginOD.m; sourceTree = "<group>"; };
 		F8AB63CA1E111AB900FE9FC8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F8D71E901EDB360C0087C938 /* Configuration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Configuration.h; sourceTree = "<group>"; };
+		F8D71E911EDB360C0087C938 /* Configuration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Configuration.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,6 +102,8 @@
 			isa = PBXGroup;
 			children = (
 				F80BEB6D1E3C0CE600B16E32 /* main.m */,
+				F8D71E901EDB360C0087C938 /* Configuration.h */,
+				F8D71E911EDB360C0087C938 /* Configuration.m */,
 			);
 			path = ELConfigTool;
 			sourceTree = "<group>";
@@ -107,7 +122,7 @@
 			isa = PBXGroup;
 			children = (
 				F8AB63BD1E111AB900FE9FC8 /* io.easylogin.EasyLoginOD.xpc */,
-				F80BEB6B1E3C0CE600B16E32 /* ELConfigTool */,
+				F80BEB6B1E3C0CE600B16E32 /* dsconfigel */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -146,9 +161,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		F80BEB6A1E3C0CE600B16E32 /* ELConfigTool */ = {
+		F80BEB6A1E3C0CE600B16E32 /* dsconfigel */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F80BEB711E3C0CE600B16E32 /* Build configuration list for PBXNativeTarget "ELConfigTool" */;
+			buildConfigurationList = F80BEB711E3C0CE600B16E32 /* Build configuration list for PBXNativeTarget "dsconfigel" */;
 			buildPhases = (
 				F80BEB671E3C0CE600B16E32 /* Sources */,
 				F80BEB681E3C0CE600B16E32 /* Frameworks */,
@@ -158,9 +173,9 @@
 			);
 			dependencies = (
 			);
-			name = ELConfigTool;
+			name = dsconfigel;
 			productName = CDSConfigTool;
-			productReference = F80BEB6B1E3C0CE600B16E32 /* ELConfigTool */;
+			productReference = F80BEB6B1E3C0CE600B16E32 /* dsconfigel */;
 			productType = "com.apple.product-type.tool";
 		};
 		F8AB63BC1E111AB900FE9FC8 /* EasyLoginOD */ = {
@@ -177,6 +192,7 @@
 				C4E7B6181E815AF600A3B1A0 /* PBXBuildRule */,
 			);
 			dependencies = (
+				F8D71E8F1EDB35550087C938 /* PBXTargetDependency */,
 			);
 			name = EasyLoginOD;
 			productName = CloudDirectoryServiceModule;
@@ -222,7 +238,7 @@
 			projectRoot = "";
 			targets = (
 				F8AB63BC1E111AB900FE9FC8 /* EasyLoginOD */,
-				F80BEB6A1E3C0CE600B16E32 /* ELConfigTool */,
+				F80BEB6A1E3C0CE600B16E32 /* dsconfigel */,
 			);
 		};
 /* End PBXProject section */
@@ -242,6 +258,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F8D71E921EDB360C0087C938 /* Configuration.m in Sources */,
 				F80BEB6E1E3C0CE600B16E32 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -255,6 +272,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F8D71E8F1EDB35550087C938 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F80BEB6A1E3C0CE600B16E32 /* dsconfigel */;
+			targetProxy = F8D71E8E1EDB35550087C938 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		F80BEB6F1E3C0CE600B16E32 /* Debug */ = {
@@ -419,7 +444,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		F80BEB711E3C0CE600B16E32 /* Build configuration list for PBXNativeTarget "ELConfigTool" */ = {
+		F80BEB711E3C0CE600B16E32 /* Build configuration list for PBXNativeTarget "dsconfigel" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F80BEB6F1E3C0CE600B16E32 /* Debug */,

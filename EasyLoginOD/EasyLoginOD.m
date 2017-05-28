@@ -180,6 +180,25 @@ static void ELConfigLoaded(od_request_t request, od_moduleconfig_t moduleconfig)
 }
 
 
+/*
+ * This routine is called to parse unknown destination strings.  These destinations are triggered by use
+ * of DynamicNode configurations.  Typically it'll be the trailing part of a node name, for example:
+ *
+ *    /LDAPv3/ldap://server.company.com
+ *
+ * The destination passed to this moduleconfig will be "ldap://server.company.com".  The response from
+ * this call should return an XPC_TYPE_DICTIONARY, with 2 keys ("host" and "port") and corresponding values.
+ */
+static xpc_object_t
+ELParseDynamicDestination(od_request_t request, od_moduleconfig_t moduleconfig, const char *destination)
+{
+    xpc_object_t dict = xpc_dictionary_create(NULL, NULL, 0);
+    
+    xpc_dictionary_set_value(dict, "host", xpc_string_create(""));
+    xpc_dictionary_set_int64(dict, "port", 443);
+    
+    return dict;
+}
 
 
 /*! A Open Directory connection reconnect_cb callback function.
@@ -817,6 +836,7 @@ int main(int argc, const char *argv[])
         .odm_initialize = ELModuleInit,
         .odm_configuration_loaded = ELConfigLoaded,
         .odm_create_connection_with_options = ELCreateConnectionWithOptions,
+        .odm_parse_dynamic_destination = ELParseDynamicDestination,
         .odm_copy_details = ELCopyDetails,
         
         .odm_NodeCopyPolicies = ELNodeCopyPolicies,

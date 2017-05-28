@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "F80BEB6A1E3C0CE600B16E32"
-               BuildableName = "ELConfigTool"
-               BlueprintName = "ELConfigTool"
+               BuildableName = "dsconfigel"
+               BlueprintName = "dsconfigel"
                ReferencedContainer = "container:EasyLoginOD.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -33,8 +33,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F80BEB6A1E3C0CE600B16E32"
-            BuildableName = "ELConfigTool"
-            BlueprintName = "ELConfigTool"
+            BuildableName = "dsconfigel"
+            BlueprintName = "dsconfigel"
             ReferencedContainer = "container:EasyLoginOD.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -56,8 +56,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F80BEB6A1E3C0CE600B16E32"
-            BuildableName = "ELConfigTool"
-            BlueprintName = "ELConfigTool"
+            BuildableName = "dsconfigel"
+            BlueprintName = "dsconfigel"
             ReferencedContainer = "container:EasyLoginOD.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -75,8 +75,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F80BEB6A1E3C0CE600B16E32"
-            BuildableName = "ELConfigTool"
-            BlueprintName = "ELConfigTool"
+            BuildableName = "dsconfigel"
+            BlueprintName = "dsconfigel"
             ReferencedContainer = "container:EasyLoginOD.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

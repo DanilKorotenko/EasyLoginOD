@@ -7,8 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "Configuration.h"
 
 #import <OpenDirectory/OpenDirectory.h>
+
 
 @protocol ELConfigCommand <NSObject>
 
@@ -231,23 +233,26 @@
 int main(int argc, const char * argv[]) {
     int exitCode = EXIT_FAILURE;
     @autoreleasepool {
-        id<ELConfigCommand> command;
-        NSLog(@"EL Starting process");
-        exitCode = EXIT_SUCCESS;
-        if ( (argc == 2) && (strcmp(argv[1], "set") == 0) ) {
-            command = [ELConfigSet new];
-        } else if ( (argc == 2) && (strcmp(argv[1], "unset") == 0) ) {
-            command = [ELConfigUnset new];
-        } else {
-            exitCode = EXIT_FAILURE;
-        }
+//        id<ELConfigCommand> command;
+//        NSLog(@"EL Starting process");
+//        exitCode = EXIT_SUCCESS;
+//        if ( (argc == 2) && (strcmp(argv[1], "set") == 0) ) {
+//            command = [ELConfigSet new];
+//        } else if ( (argc == 2) && (strcmp(argv[1], "unset") == 0) ) {
+//            command = [ELConfigUnset new];
+//        } else {
+//            exitCode = EXIT_FAILURE;
+//        }
+//        
+//        if (exitCode == EXIT_FAILURE) {
+//            fprintf(stderr, "usage: %s set\n", getprogname());
+//            fprintf(stderr, "usage: %s unset\n", getprogname());
+//        } else {
+//            exitCode = [command run] ? EXIT_SUCCESS : EXIT_FAILURE;
+//        }
         
-        if (exitCode == EXIT_FAILURE) {
-            fprintf(stderr, "usage: %s set\n", getprogname());
-            fprintf(stderr, "usage: %s unset\n", getprogname());
-        } else {
-            exitCode = [command run] ? EXIT_SUCCESS : EXIT_FAILURE;
-        }
+        Configuration *config = [Configuration new];
+        exitCode = [config run];
     }
     return exitCode;
 }

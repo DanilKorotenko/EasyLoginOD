@@ -283,24 +283,24 @@
     FILE * __restrict output = helpAsError ? stderr : stdout;
     const char *command = getprogname();
     
-    fprintf(stderr, "usage: %s --action < show | join | leave | update > ...\n", command);
+    fprintf(stderr, "usage: %s -action < show | join | leave | update > ...\n", command);
     fprintf(output, "\n");
     
-    fprintf(stderr, "%s --action show\n", command);
+    fprintf(stderr, "%s -action show\n", command);
     fprintf(stderr, "\tDisplay current configuration\n");
     fprintf(output, "\n");
     
-    fprintf(stderr, "%s --action join --host %s ...\n", command, [kConfigurationExampleServer UTF8String]);
+    fprintf(stderr, "%s -action join -host %s ...\n", command, [kConfigurationExampleServer UTF8String]);
     fprintf(stderr, "\tBind to target EasyLogin server.\n");
     fprintf(stderr, "\tIf an authentication is requiered by the server,\n\tclient certificate will be looked in system keychain.\n");
     fprintf(output, "\n");
     
-    fprintf(stderr, "%s --action leave --host %s ...\n", command, [kConfigurationExampleServer UTF8String]);
+    fprintf(stderr, "%s -action leave -host %s ...\n", command, [kConfigurationExampleServer UTF8String]);
     fprintf(stderr, "\tLeave the target server\n");
     fprintf(stderr, "\tIf server was using certificate based authentication,\n\tcertificate will stay in system keychain.\n");
     fprintf(output, "\n");
     
-    fprintf(stderr, "%s --action update --host %s ...\n", command, [kConfigurationExampleServer UTF8String]);
+    fprintf(stderr, "%s -action update -host %s ...\n", command, [kConfigurationExampleServer UTF8String]);
     fprintf(stderr, "\tUpdate current configuration settings\n");
     fprintf(output, "\n");
     
@@ -318,7 +318,7 @@
         NSInteger value = [[NSUserDefaults standardUserDefaults] integerForKey:key];
         int localPad = padLength - (int)[key length];
         
-        fprintf(output, "\t--%s %*ld\n", [key UTF8String], localPad, (long)value);
+        fprintf(output, "\t-%s %*ld\n", [key UTF8String], localPad, (long)value);
     }
 }
 

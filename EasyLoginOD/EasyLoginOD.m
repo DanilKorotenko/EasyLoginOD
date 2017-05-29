@@ -491,7 +491,7 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
     
     NSDictionary *hardcordedUser = @{
 //                                     @"type": @[ @"CloudUser" ],
-//                                     @"shortname": @[ @"als" ],
+//                                     @"visa": @[ @"als" ],
 //                                     @"displayname": @[ @"Alice Test" ],
 //                                     @"lastname": @[ @"Smith" ],
 //                                     @"firstname": @[ @"Alice" ],
@@ -778,26 +778,26 @@ static eODCallbackResponse ELRecordCopySupportedPolicies(od_request_t request, o
 
 #pragma mark - Password expiration and locked account
 
-eODCallbackResponse ELRecordAuthenticationAllowed(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, xpc_object_t addinfo_dict)
+static eODCallbackResponse ELRecordAuthenticationAllowed(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, xpc_object_t addinfo_dict)
 {
     odrequest_log_message(request, eODLogDebug, CFSTR("******** EL record auth allowed?"));
     
     return eODCallbackResponseAccepted;
 }
 
-eODCallbackResponse ELRecordPasswordChangeAllowed(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, const char *password, xpc_object_t addinfo_dict)
+static eODCallbackResponse ELRecordPasswordChangeAllowed(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, const char *password, xpc_object_t addinfo_dict)
 {
     odrequest_log_message(request, eODLogDebug, CFSTR("******** EL record password change allowed?"));
     return eODCallbackResponseSkip;
 }
 
-eODCallbackResponse ELRecordWillPasswordExpire(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, int64_t expires_in, xpc_object_t addinfo_dict)
+static eODCallbackResponse ELRecordWillPasswordExpire(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, int64_t expires_in, xpc_object_t addinfo_dict)
 {
     odrequest_log_message(request, eODLogDebug, CFSTR("******** EL record password will expire?"));
     return eODCallbackResponseSkip;
 }
 
-eODCallbackResponse ELRecordSecondsUntilPasswordExpires(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, xpc_object_t addinfo_dict)
+static eODCallbackResponse ELRecordSecondsUntilPasswordExpires(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, xpc_object_t addinfo_dict)
 {
     odrequest_log_message(request, eODLogDebug, CFSTR("******** EL seconds before password expiration?"));
     
@@ -822,7 +822,6 @@ static eODCallbackResponse ELNodeSetCredentials(od_request_t request, od_connect
     
     return eODCallbackResponseSkip;
 }
-
 
 #pragma mark - entry
 

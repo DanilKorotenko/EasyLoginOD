@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<array>
+<dict>
+	<key>CloudUser</key>
 	<dict>
-		<key>EL_attribute_mapping</key>
+		<key>standardToNativeMap</key>
 		<dict>
 			<key>dsAttrTypeStandard:AddressLine1</key>
 			<string>addresline1</string>
@@ -78,7 +79,11 @@
 			<key>dsAttrTypeStandard:PrimaryGroupID</key>
 			<string>primarygroup</string>
 			<key>dsAttrTypeStandard:RealName</key>
-			<string>displayname</string>
+			<array>
+				<string>displayname</string>
+				<string>firstname</string>
+				<string>lastname</string>
+			</array>
 			<key>dsAttrTypeStandard:RecordName</key>
 			<string>shortname</string>
 			<key>dsAttrTypeStandard:RecordType</key>
@@ -100,13 +105,12 @@
 			<key>dsAttrTypeStandard:WeblogURI</key>
 			<string>blog</string>
 		</dict>
-		<key>EL_native_type</key>
-		<string>CloudUser</string>
-		<key>EL_std_type</key>
+		<key>standardType</key>
 		<string>dsRecTypeStandard:Users</string>
 	</dict>
+	<key>CloudGroup</key>
 	<dict>
-		<key>EL_attribute_mapping</key>
+		<key>standardToNativeMap</key>
 		<dict>
 			<key>dsAttrTypeStandard:GeneratedUID</key>
 			<string>uuid</string>
@@ -115,10 +119,8 @@
 			<key>dsAttrTypeStandard:RecordName</key>
 			<string>shortname</string>
 		</dict>
-		<key>EL_native_type</key>
-		<string>CloudGroup</string>
-		<key>EL_std_type</key>
+		<key>standardType</key>
 		<string>dsRecTypeStandard:Groups</string>
 	</dict>
-</array>
+</dict>
 </plist>

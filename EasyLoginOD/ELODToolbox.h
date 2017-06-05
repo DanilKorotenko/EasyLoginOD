@@ -10,4 +10,8 @@
 
 @interface ELODToolbox : NSObject
 
++ (instancetype)sharedInstance;
+
+- (NSDictionary*)standardInfoFromNativeInfos:(NSDictionary*)nativeInfo ofType:(NSString *)nativeType;
+
 @end

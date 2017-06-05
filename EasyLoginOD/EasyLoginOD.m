@@ -10,6 +10,8 @@
 #include "EasyLoginOD.h"
 #include <odmodule/odmodule.h>
 
+#import "ELODToolbox.h"
+
 #if __has_feature(objc_arc)
 #error OD modules can not be built with ARC enabled.
 // In theory OD objects should be like OS objects, and thus compatible
@@ -489,31 +491,20 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
     
     odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with predicates %@"), humanReadablePredicateList);
     
-    NSDictionary *hardcordedUser = @{
-//                                     @"type": @[ @"CloudUser" ],
-//                                     @"visa": @[ @"als" ],
-//                                     @"displayname": @[ @"Alice Test" ],
-//                                     @"lastname": @[ @"Smith" ],
-//                                     @"firstname": @[ @"Alice" ],
-//                                     @"email": @[ @"alice@example.com" ],
-//                                     @"uuid": @[ @"52434084-BBBB-AAAA-AAAA-CFA42AAD554B" ],
-//                                     @"uid": @[ @"666" ],
-//                                     @"home": @[ @"/Users/als" ],
-//                                     @"shell": @[ @"/bin/zsh"],
-//                                     @"primarygroup": @[ @"20" ],
-                                     
-                                     kODAttributeTypeRecordType: @[ @"CloudUser" ],
-                                     kODAttributeTypeRecordName: @[ @"als" ],
-                                     kODAttributeTypeFullName: @[ @"Alice Smith" ],
-                                     kODAttributeTypeLastName: @[ @"Smith" ],
-                                     kODAttributeTypeFirstName: @[ @"Alice" ],
-                                     kODAttributeTypeEMailAddress: @[ @"alice@example.com" ],
-                                     kODAttributeTypeGUID: @[ @"52434084-BBBB-AAAA-AAAA-CFA42AAD554B" ],
-                                     kODAttributeTypeUniqueID: @[ @"666" ],
-                                     kODAttributeTypeNFSHomeDirectory: @[ @"/Users/als" ],
-                                     kODAttributeTypeUserShell: @[ @"/bin/zsh"],
-                                     kODAttributeTypePrimaryGroupID: @[ @"20" ],
-                                     };
+    NSDictionary *hardcordedUser = [[ELODToolbox sharedInstance] standardInfoFromNativeInfos:@{
+                                                                                               @"type": @[ @"CloudUser" ],
+                                                                                               @"shortname": @[ @"als" ],
+                                                                                               @"displayname": @[ @"Alice Test" ],
+                                                                                               @"lastname": @[ @"Smith" ],
+                                                                                               @"firstname": @[ @"Alice" ],
+                                                                                               @"email": @[ @"alice@example.com" ],
+                                                                                               @"uuid": @[ @"52434084-BBBB-AAAA-AAAA-CFA42AAD554B" ],
+                                                                                               @"uid": @[ @"666" ],
+                                                                                               @"home": @"/Users/als",
+                                                                                               @"shell": @[ @"/bin/zsh"],
+                                                                                               @"primarygroup": @[ @"20" ],
+                                                                                               }
+                                                                                      ofType:@"CloudUser"];
     
     
     for (NSDictionary *predicatesInfo in predicateList) {

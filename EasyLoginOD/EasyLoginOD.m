@@ -155,6 +155,7 @@ static NSDictionary* ELDebugHumanReadableDictionary(NSDictionary *inputDict)
 
 
 static od_module_t odmodule;
+static ELWebServiceConnector *webService = nil;
 
 #pragma mark - Basics
 
@@ -180,6 +181,10 @@ static void ELConfigLoaded(od_request_t request, od_moduleconfig_t moduleconfig)
 {
     
     //	odmoduleconfig_set_context(moduleconfig, myContext, myContextDeallocator)
+    
+    webService = [[ELWebServiceConnector alloc] initWithBaseURL:[NSURL URLWithString:@"http://develop.eu.easylogin.cloud/"]
+                                           headers:nil];
+
     odrequest_log_message(request, eODLogInfo, CFSTR("******** EL configuration loaded"));
 }
 
@@ -484,6 +489,8 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
      */
     
     
+    eODCallbackResponse response = eODCallbackResponseSkip;
+    
     NSArray<NSDictionary*> * predicateList = CFBridgingRelease(xpctype_to_cftype(predicate));
     
     NSMutableArray<NSDictionary*> *humanReadablePredicateList = [NSMutableArray array];
@@ -493,193 +500,111 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
     
     odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with predicates %@"), humanReadablePredicateList);
     
-    NSDictionary *hardcordedUser = [[ELODToolbox sharedInstance] standardInfoFromNativeInfo:@{
-                                                                                               @"type": @[ @"CloudUser" ],
-                                                                                               @"shortname": @[ @"als" ],
-                                                                                               @"displayname": @[ @"Alice Test" ],
-                                                                                               @"lastname": @[ @"Smith" ],
-                                                                                               @"firstname": @[ @"Alice" ],
-                                                                                               @"email": @[ @"alice@example.com" ],
-                                                                                               @"uuid": @[ @"52434084-BBBB-AAAA-AAAA-CFA42AAD554B" ],
-                                                                                               @"uid": @[ @"666" ],
-                                                                                               @"home": @"/Users/als",
-                                                                                               @"shell": @[ @"/bin/zsh"],
-                                                                                               @"primarygroup": @[ @"20" ],
-                                                                                               }
-                                                                                      ofType:@"CloudUser"];
-    
     
     for (NSDictionary *predicatesInfo in predicateList) {
         
-        
-        if ([[predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateRecordType]] isEqualToString:@"CloudUser"]) {
+        if ([predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateList]]) {
+            odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with complexe predicates"));
             
-            if ([predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateList]]) {
-                odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with multiple predicate linked to CloudUser type"));
+            //                NSString *operator = [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateOperator]];
+            // Implementation needed with support for kODPredicateOperatorAnd kODPredicateOperatorOr and kODPredicateOperatorNot
+            
+            //                od_context_t context = odcontext_create(request, connection, NULL, ELReleaseOperationFromQueryContext);
+            //                odrequest_respond_query_start(request, context);
+            
+        } else {
+            odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with simple predicate"));
+            
+            NSNumber *matchType = [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateMatchType]];
+            NSString *nativeRecordType = [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateRecordType]];
+//            NSArray *lookedValues = [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateValueList]];
+//            NSString *standardAttribute = [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateStdAttribute]];
+            
+            od_context_t context = odcontext_create(request, connection, NULL, ELReleaseOperationFromQueryContext);
+            odrequest_respond_query_start(request, context);
+            
+            
+            if ([matchType intValue] == eODMatchTypeAll) {
                 
-                od_context_t context = odcontext_create(request, connection, NULL, ELReleaseOperationFromQueryContext);
-                odrequest_respond_query_start(request, context);
-                
-                NSString *operator = [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateOperator]];
-                
-                if ([operator isEqualToString:@"OR"]) {
-                    for (NSDictionary *predicate in [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateList]]) {
-                        NSArray *targetValues = [hardcordedUser objectForKey:[predicate objectForKey:[NSString stringWithUTF8String:kODKeyPredicateStdAttribute]]];
-                        NSArray *lookedValues = [predicate objectForKey:[NSString stringWithUTF8String:kODKeyPredicateValueList]];
-                        NSNumber *matchType = [predicate objectForKey:[NSString stringWithUTF8String:kODKeyPredicateMatchType]];
+                NSLock *lockUntilServerAnswered = [NSLock new];
+                [lockUntilServerAnswered lock];
+                CFXNetworkOperation *op = [webService getAllUsersOperationWithCompletionBlock:^(NSArray<ELUser *> * _Nullable users, __kindof CFXNetworkOperation * _Nonnull op) {
+                    for (ELUser *user in users) {
+                        NSDictionary *nativeUserInfo = [user dictionaryRepresentation];
+                        NSDictionary *standardUserInfo = [[ELODToolbox sharedInstance] standardInfoFromNativeInfo:nativeUserInfo ofType:nativeRecordType];
                         
-                        od_context_t context = odcontext_create(request, connection, NULL, ELReleaseOperationFromQueryContext);
-                        odrequest_respond_query_start(request, context);
-                        
-                        if ([matchType intValue] == eODMatchTypeAll) {
-                            xpc_object_t resultDict = cftype_to_xpctype(hardcordedUser);
-                            odrequest_respond_query_result(request, context, resultDict);
-                            xpc_release(resultDict);
-                            
-                        } else {
-                            for (NSString *lookedValue in lookedValues) {
-                                switch ([matchType intValue]) {
-                                    case eODMatchTypeContains: {
-                                        for (NSString *targetValue in targetValues) {
-                                            if ([targetValue containsString:lookedValue]) {
-                                                xpc_object_t resultDict = cftype_to_xpctype(hardcordedUser);
-                                                
-                                                odrequest_respond_query_result(request, context, resultDict);
-                                                xpc_release(resultDict);
-                                            }
-                                            
-                                        }
-                                    } break;
-                                    
-                                    case eODMatchTypeEqualTo: {
-                                        for (NSString *targetValue in targetValues) {
-                                            if ([targetValue isEqualToString:lookedValue]) {
-                                                xpc_object_t resultDict = cftype_to_xpctype(hardcordedUser);
-                                                
-                                                odrequest_respond_query_result(request, context, resultDict);
-                                                xpc_release(resultDict);
-                                            }
-                                        }
-                                    } break;
-                                    
-                                    case eODMatchTypeBeginsWith: {
-                                        for (NSString *targetValue in targetValues) {
-                                            if ([targetValue rangeOfString:lookedValue].location == 0) {
-                                                xpc_object_t resultDict = cftype_to_xpctype(hardcordedUser);
-                                                
-                                                odrequest_respond_query_result(request, context, resultDict);
-                                                xpc_release(resultDict);
-                                            }
-                                        }
-                                        
-                                    } break;
-                                    
-                                    case eODMatchTypeEndsWith: {
-                                        for (NSString *targetValue in targetValues) {
-                                            if ([targetValue rangeOfString:lookedValue].location == [targetValue length] - [lookedValue length]) {
-                                                xpc_object_t resultDict = cftype_to_xpctype(hardcordedUser);
-                                                
-                                                odrequest_respond_query_result(request, context, resultDict);
-                                                xpc_release(resultDict);
-                                            }
-                                        }
-                                        
-                                    } break;
-                                    
-                                    default:
-                                    break;
-                                }
-                            }
-                        }
-                        
+                        xpc_object_t resultDict = cftype_to_xpctype(standardUserInfo);
+                        odrequest_respond_query_result(request, context, resultDict);
+                        xpc_release(resultDict);
                     }
-                } else {
-                    odrequest_log_message(request, eODLogError, CFSTR("******** EL query with multiple predicate using AND operator not yet handled"));
                     
-                }
+                    [lockUntilServerAnswered unlock];
+                }];
                 
-                return odrequest_respond_success(request);
+                [webService enqueueOperation:op];
+                
+                [lockUntilServerAnswered lock];
+                odrequest_respond_success(request);
+                [lockUntilServerAnswered unlock];
+                response = eODCallbackResponseAccepted;
                 
             } else {
-                odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with single predicate linked to CloudUser type"));
-                
-                NSArray *targetValues = [hardcordedUser objectForKey:[predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateStdAttribute]]];
-                NSArray *lookedValues = [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateValueList]];
-                NSNumber *matchType = [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateMatchType]];
-                
-                od_context_t context = odcontext_create(request, connection, NULL, ELReleaseOperationFromQueryContext);
-                odrequest_respond_query_start(request, context);
-                
-                if ([matchType intValue] == eODMatchTypeAll) {
-                    xpc_object_t resultDict = cftype_to_xpctype(hardcordedUser);
-                    odrequest_respond_query_result(request, context, resultDict);
-                    xpc_release(resultDict);
-                    
-                } else {
-                    for (NSString *lookedValue in lookedValues) {
-                        switch ([matchType intValue]) {
-                            case eODMatchTypeContains: {
-                                for (NSString *targetValue in targetValues) {
-                                    if ([targetValue containsString:lookedValue]) {
-                                        xpc_object_t resultDict = cftype_to_xpctype(hardcordedUser);
-                                        
-                                        odrequest_respond_query_result(request, context, resultDict);
-                                        xpc_release(resultDict);
-                                    }
-                                    
-                                }
-                            } break;
-                            
-                            case eODMatchTypeEqualTo: {
-                                for (NSString *targetValue in targetValues) {
-                                    if ([targetValue isEqualToString:lookedValue]) {
-                                        xpc_object_t resultDict = cftype_to_xpctype(hardcordedUser);
-                                        
-                                        odrequest_respond_query_result(request, context, resultDict);
-                                        xpc_release(resultDict);
-                                    }
-                                }
-                            } break;
-                            
-                            case eODMatchTypeBeginsWith: {
-                                for (NSString *targetValue in targetValues) {
-                                    if ([targetValue rangeOfString:lookedValue].location == 0) {
-                                        xpc_object_t resultDict = cftype_to_xpctype(hardcordedUser);
-                                        
-                                        odrequest_respond_query_result(request, context, resultDict);
-                                        xpc_release(resultDict);
-                                    }
-                                }
-                                
-                            } break;
-                            
-                            case eODMatchTypeEndsWith: {
-                                for (NSString *targetValue in targetValues) {
-                                    if ([targetValue rangeOfString:lookedValue].location == [targetValue length] - [lookedValue length]) {
-                                        xpc_object_t resultDict = cftype_to_xpctype(hardcordedUser);
-                                        
-                                        odrequest_respond_query_result(request, context, resultDict);
-                                        xpc_release(resultDict);
-                                    }
-                                }
-                                
-                            } break;
-                            
-                            default:
-                            break;
-                        }
-                    }
+                switch ([matchType intValue]) {
+                    case eODMatchTypeContains: {
+                        //                                for (NSString *targetValue in targetValues) {
+                        //                                    if ([targetValue containsString:lookedValue]) {
+                        //                                        xpc_object_t resultDict = cftype_to_xpctype(hardcordedUser);
+                        //
+                        //                                        odrequest_respond_query_result(request, context, resultDict);
+                        //                                        xpc_release(resultDict);
+                        //                                    }
+                        //
+                        //                                }
+                    } break;
+                        
+                    case eODMatchTypeEqualTo: {
+                        //                                for (NSString *targetValue in targetValues) {
+                        //                                    if ([targetValue isEqualToString:lookedValue]) {
+                        //                                        xpc_object_t resultDict = cftype_to_xpctype(hardcordedUser);
+                        //
+                        //                                        odrequest_respond_query_result(request, context, resultDict);
+                        //                                        xpc_release(resultDict);
+                        //                                    }
+                        //                                }
+                    } break;
+                        
+                    case eODMatchTypeBeginsWith: {
+                        //                                for (NSString *targetValue in targetValues) {
+                        //                                    if ([targetValue rangeOfString:lookedValue].location == 0) {
+                        //                                        xpc_object_t resultDict = cftype_to_xpctype(hardcordedUser);
+                        //
+                        //                                        odrequest_respond_query_result(request, context, resultDict);
+                        //                                        xpc_release(resultDict);
+                        //                                    }
+                        //                                }
+                        
+                    } break;
+                        
+                    case eODMatchTypeEndsWith: {
+                        //                                for (NSString *targetValue in targetValues) {
+                        //                                    if ([targetValue rangeOfString:lookedValue].location == [targetValue length] - [lookedValue length]) {
+                        //                                        xpc_object_t resultDict = cftype_to_xpctype(hardcordedUser);
+                        //
+                        //                                        odrequest_respond_query_result(request, context, resultDict);
+                        //                                        xpc_release(resultDict);
+                        //                                    }
+                        //                                }
+                        
+                    } break;
+                        
+                    default:
+                        break;
                 }
-                
-                return odrequest_respond_success(request);
             }
-        } else {
-            odrequest_log_message(request, eODLogNotice, CFSTR("******** EL unsupported (yet) record type: %@"), [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateRecordType]]);
-            return eODCallbackResponseSkip;
         }
     }
     
-    return eODCallbackResponseSkip;
+    return response;
 }
 
 static eODCallbackResponse ELQuerySynchronize(od_request_t request, od_connection_t connection, od_context_t query_context)

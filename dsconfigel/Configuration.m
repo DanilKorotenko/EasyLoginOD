@@ -136,9 +136,10 @@
     odConfig.preferredDestinationHostPort = self.port;
     
     ODMappings *odMaps = [ODMappings mappings];
+    odMaps.function = [NSString stringWithFormat:@"%@:translate_recordtype", kEasyLoginODModuleBundleName];
     odConfig.defaultMappings = odMaps;
     
-    NSString *odModulePath = [NSString stringWithFormat:@"/Library/OpenDirectory/Modules/%@.xpc/Contents/Resources/ELMapping.plist", kEasyLoginODModuleIdentifier];
+    NSString *odModulePath = [NSString stringWithFormat:@"/Library/OpenDirectory/Modules/%@.xpc/Contents/Resources/ELMapping.plist", kEasyLoginODModuleBundleName];
     
     NSDictionary *mappingInfos = [NSDictionary dictionaryWithContentsOfFile:odModulePath];
     
@@ -154,14 +155,17 @@
         for (NSString *standardAttributeType in [standardToNativeAttributesMap allKeys]) {
             id nativeCounterpart = [standardToNativeAttributesMap objectForKey:standardAttributeType];
             
-            [recordMap setAttributeMap:[ODAttributeMap attributeMapWithValue:nativeCounterpart]
+            ODAttributeMap *attributeMap = [ODAttributeMap attributeMapWithValue:nativeCounterpart];
+            attributeMap.customTranslationFunction = [NSString stringWithFormat:@"%@:translate_attribute", kEasyLoginODModuleBundleName];
+            
+            [recordMap setAttributeMap:attributeMap
                   forStandardAttribute:standardAttributeType];
         }
         
         [odMaps setRecordMap:recordMap forStandardRecordType:standardType];
     }
     
-    ODModuleEntry *odModuleEntry = [ODModuleEntry moduleEntryWithName:kEasyLoginODModuleName xpcServiceName:kEasyLoginODModuleIdentifier];
+    ODModuleEntry *odModuleEntry = [ODModuleEntry moduleEntryWithName:kEasyLoginODModuleEntryName xpcServiceName:kEasyLoginODModuleBundleName];
         
     if (!odModuleEntry) {
         fprintf(stderr, "EasyLogin were unable to load new instance of OD Module %s. Check content of OD Module folder.\n", [kEasyLoginODModuleIdentifier UTF8String]);

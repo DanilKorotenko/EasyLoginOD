@@ -493,7 +493,7 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
     
     odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with predicates %@"), humanReadablePredicateList);
     
-    NSDictionary *hardcordedUser = [[ELODToolbox sharedInstance] standardInfoFromNativeInfos:@{
+    NSDictionary *hardcordedUser = [[ELODToolbox sharedInstance] standardInfoFromNativeInfo:@{
                                                                                                @"type": @[ @"CloudUser" ],
                                                                                                @"shortname": @[ @"als" ],
                                                                                                @"displayname": @[ @"Alice Test" ],

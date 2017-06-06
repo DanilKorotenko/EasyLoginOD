@@ -37,7 +37,7 @@
 }
 
 // Will return the same content if nativeType isn't translated
-- (NSDictionary*)standardInfoFromNativeInfos:(NSDictionary*)nativeInfo ofType:(NSString *)nativeType {
+- (NSDictionary*)standardInfoFromNativeInfo:(NSDictionary*)nativeInfo ofType:(NSString *)nativeType {
     // We recieve a native type and a bunch of native key/value or key/[values] that we need to translate to standard key/[value] record
     
     // We load the related translation table that can link a standard key to one native key

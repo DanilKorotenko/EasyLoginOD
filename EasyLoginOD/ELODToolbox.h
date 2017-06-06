@@ -12,6 +12,6 @@
 
 + (instancetype)sharedInstance;
 
-- (NSDictionary*)standardInfoFromNativeInfos:(NSDictionary*)nativeInfo ofType:(NSString *)nativeType;
+- (NSDictionary*)standardInfoFromNativeInfo:(NSDictionary*)nativeInfo ofType:(NSString *)nativeType;
 
 @end

@@ -814,20 +814,6 @@ static eODCallbackResponse ELNodeSetCredentials(od_request_t request, od_connect
     return eODCallbackResponseSkip;
 }
 
-#pragma mark - Custom Translation
-
-int translate_recordtype(id test) {
-    
-    
-    return 0;
-}
-
-int translate_attribute(id test) {
-    
-    
-    return 0;
-}
-
 #pragma mark - entry
 
 int main(int argc, const char *argv[])

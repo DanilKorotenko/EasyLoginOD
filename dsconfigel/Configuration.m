@@ -136,7 +136,7 @@
     odConfig.preferredDestinationHostPort = self.port;
     
     ODMappings *odMaps = [ODMappings mappings];
-    odMaps.function = [NSString stringWithFormat:@"%@:translate_recordtype", kEasyLoginODModuleBundleName];
+//    odMaps.function = [NSString stringWithFormat:@"%@:translate_recordtype", kEasyLoginODModuleBundleName];
     odConfig.defaultMappings = odMaps;
     
     NSString *odModulePath = [NSString stringWithFormat:@"/Library/OpenDirectory/Modules/%@.xpc/Contents/Resources/ELMapping.plist", kEasyLoginODModuleBundleName];
@@ -156,7 +156,7 @@
             id nativeCounterpart = [standardToNativeAttributesMap objectForKey:standardAttributeType];
             
             ODAttributeMap *attributeMap = [ODAttributeMap attributeMapWithValue:nativeCounterpart];
-            attributeMap.customTranslationFunction = [NSString stringWithFormat:@"%@:translate_attribute", kEasyLoginODModuleBundleName];
+//            attributeMap.customTranslationFunction = [NSString stringWithFormat:@"%@:translate_attribute", kEasyLoginODModuleBundleName];
             
             [recordMap setAttributeMap:attributeMap
                   forStandardAttribute:standardAttributeType];

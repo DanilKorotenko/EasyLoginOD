@@ -90,7 +90,7 @@
 		F8DAEFDC1EE5F62200741257 /* EasyLoginMacLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = EasyLoginMacLib.xcodeproj; path = Vendors/EasyLoginLibrary/EasyLoginMacLib/EasyLoginMacLib.xcodeproj; sourceTree = "<group>"; };
 		F8DAEFE31EE5F98600741257 /* ELODToolbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ELODToolbox.h; sourceTree = "<group>"; };
 		F8DAEFE41EE5F98600741257 /* ELODToolbox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ELODToolbox.m; sourceTree = "<group>"; };
-		F8E2D15E1EE1650B0068EC2E /* Common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Common.h; path = ../Common.h; sourceTree = "<group>"; };
+		F8E2D15E1EE1650B0068EC2E /* Common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Common.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */

@@ -452,6 +452,7 @@
 					__BUILDING_ODMODULE__,
 					"$(inherited)",
 				);
+				HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)";
 				INFOPLIST_FILE = EasyLoginOD/Info.plist;
 				INSTALL_PATH = /Library/OpenDirectory/Modules/;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
@@ -479,6 +480,7 @@
 					__BUILDING_ODMODULE__,
 					"$(inherited)",
 				);
+				HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)";
 				INFOPLIST_FILE = EasyLoginOD/Info.plist;
 				INSTALL_PATH = /Library/OpenDirectory/Modules/;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";

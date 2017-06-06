@@ -11,6 +11,8 @@
 #include <odmodule/odmodule.h>
 
 #import "ELODToolbox.h"
+#import <EasyLogin/Easylogin.h>
+
 
 #if __has_feature(objc_arc)
 #error OD modules can not be built with ARC enabled.

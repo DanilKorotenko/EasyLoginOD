@@ -11,7 +11,7 @@
 #include <odmodule/odmodule.h>
 
 #import "ELODToolbox.h"
-#import <EasyLogin/Easylogin.h>
+#import <EasyLogin/EasyLogin.h>
 
 
 #if __has_feature(objc_arc)

@@ -152,7 +152,10 @@
         NSDictionary *standardToNativeAttributesMap = [mapInfos objectForKey:kEasyLoginMappingInfosStandardToNativeKey];
         
         for (NSString *standardAttributeType in [standardToNativeAttributesMap allKeys]) {
-            [recordMap setAttributeMap:[ODAttributeMap attributeMapWithValue:[standardToNativeAttributesMap objectForKey:standardAttributeType]] forStandardAttribute:standardAttributeType];
+            id nativeCounterpart = [standardToNativeAttributesMap objectForKey:standardAttributeType];
+            
+            [recordMap setAttributeMap:[ODAttributeMap attributeMapWithValue:nativeCounterpart]
+                  forStandardAttribute:standardAttributeType];
         }
         
         [odMaps setRecordMap:recordMap forStandardRecordType:standardType];

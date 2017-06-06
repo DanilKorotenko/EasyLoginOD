@@ -79,11 +79,7 @@
 			<key>dsAttrTypeStandard:PrimaryGroupID</key>
 			<string>primarygroup</string>
 			<key>dsAttrTypeStandard:RealName</key>
-			<array>
-				<string>displayname</string>
-				<string>firstname</string>
-				<string>lastname</string>
-			</array>
+			<string>displayname</string>
 			<key>dsAttrTypeStandard:RecordName</key>
 			<string>shortname</string>
 			<key>dsAttrTypeStandard:RecordType</key>

@@ -8,6 +8,8 @@
 
 #import "ELODToolbox.h"
 
+#include <odmodule/odcore.h>
+
 #import "Common.h"
 
 @interface ELODToolbox ()
@@ -44,6 +46,8 @@
     NSDictionary *standardToNativeAttributesMap = [[self.mapping objectForKey:nativeType] objectForKey:kEasyLoginMappingInfosStandardToNativeKey];
     
     NSMutableDictionary *translatedInfo = [NSMutableDictionary new];
+    
+    [translatedInfo setObject:@[nativeType] forKey:kODAttributeTypeRecordType];
     
     // Then start the dance, first we look at native keys available in the current context
     for (NSString *nativeKeyToTranslate in [nativeInfo allKeys]) {

@@ -64,9 +64,6 @@
  *     etc.
  */
 
-#import <Foundation/Foundation.h>
-#import <CloudDirectoryService/CloudDirectoryService.h>
-
 #pragma mark - Debug Utils
 
 static NSString* ELDebugHumanReadableMatchType(ODMatchType matchType)
@@ -155,7 +152,6 @@ static NSDictionary* ELDebugHumanReadableDictionary(NSDictionary *inputDict)
 
 
 static od_module_t odmodule;
-static ELWebServiceConnector *webService = nil;
 
 #pragma mark - Basics
 
@@ -182,9 +178,6 @@ static void ELConfigLoaded(od_request_t request, od_moduleconfig_t moduleconfig)
     
     //	odmoduleconfig_set_context(moduleconfig, myContext, myContextDeallocator)
     
-    webService = [[ELWebServiceConnector alloc] initWithBaseURL:[NSURL URLWithString:@"http://develop.eu.easylogin.cloud/"]
-                                           headers:nil];
-
     odrequest_log_message(request, eODLogInfo, CFSTR("******** EL configuration loaded"));
 }
 
@@ -526,24 +519,37 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
             
             if ([matchType intValue] == eODMatchTypeAll) {
                 
+                odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with match type eODMatchTypeAll, start"));
+                
                 NSLock *lockUntilServerAnswered = [NSLock new];
                 [lockUntilServerAnswered lock];
-                CFXNetworkOperation *op = [webService getAllUsersOperationWithCompletionBlock:^(NSArray<ELUser *> * _Nullable users, __kindof CFXNetworkOperation * _Nonnull op) {
-                    for (ELUser *user in users) {
-                        NSDictionary *nativeUserInfo = [user dictionaryRepresentation];
-                        NSDictionary *standardUserInfo = [[ELODToolbox sharedInstance] standardInfoFromNativeInfo:nativeUserInfo ofType:nativeRecordType];
-                        
-                        xpc_object_t resultDict = cftype_to_xpctype(standardUserInfo);
-                        odrequest_respond_query_result(request, context, resultDict);
-                        xpc_release(resultDict);
-                    }
-                    
-                    [lockUntilServerAnswered unlock];
-                }];
-                
-                [webService enqueueOperation:op];
+                [[EasyLoginDBProxy sharedInstance] getAllRegisteredRecordsOfType:nativeRecordType
+                                                          withAttributesToReturn:@[
+                                                                                   [[ELODToolbox sharedInstance] nativeAttrbuteForNativeType:nativeRecordType relatedToStandardAttribute:kODAttributeTypeRecordType],
+                                                                                   [[ELODToolbox sharedInstance] nativeAttrbuteForNativeType:nativeRecordType relatedToStandardAttribute:kODAttributeTypeRecordName],
+                                                                                   ]
+                                                            andCompletionHandler:^(NSArray<NSDictionary *> *results, NSError *error) {
+                                                                if (error) {
+                                                                    odrequest_log_message(request, eODLogError, CFSTR("Error when requesting information from EasyLoginDB: %@"), error);
+                                                                } else {
+                                                                    odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with match type eODMatchTypeAll, got DB asnwer"));
+                                                                    for (NSDictionary *nativeUserInfo in results) {
+                                                                        NSDictionary *standardUserInfo = [[ELODToolbox sharedInstance] standardInfoFromNativeInfo:nativeUserInfo ofType:nativeRecordType];
+                                                                        
+                                                                        odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with match type eODMatchTypeAll, answering %@"), standardUserInfo);
+                                                                        
+                                                                        xpc_object_t resultDict = cftype_to_xpctype(standardUserInfo);
+                                                                        odrequest_respond_query_result(request, context, resultDict);
+                                                                        xpc_release(resultDict);
+                                                                    }
+                                                                }
+                                                                
+                                                                [lockUntilServerAnswered unlock];
+                                                            }];
+
                 
                 [lockUntilServerAnswered lock];
+                odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with match type eODMatchTypeAll, send response"));
                 odrequest_respond_success(request);
                 [lockUntilServerAnswered unlock];
                 response = eODCallbackResponseAccepted;

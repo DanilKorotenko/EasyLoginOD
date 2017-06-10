@@ -77,4 +77,12 @@
     return translatedInfo;
 }
 
+- (NSString*)nativeAttrbuteForNativeType:(NSString *)nativeType relatedToStandardAttribute:(NSString*)standardAttribute {
+    return [[[self.mapping objectForKey:nativeType] objectForKey:kEasyLoginMappingInfosStandardToNativeKey] objectForKey:standardAttribute];
+}
+
+- (NSArray*)allNativeAttributeSupportedForType:(NSString *)nativeType {
+    return [[[self.mapping objectForKey:nativeType] objectForKey:kEasyLoginMappingInfosStandardToNativeKey] allValues];
+}
+
 @end

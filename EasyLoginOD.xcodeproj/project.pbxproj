@@ -12,11 +12,11 @@
 		F80BEB6E1E3C0CE600B16E32 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F80BEB6D1E3C0CE600B16E32 /* main.m */; };
 		F80BEB731E3C0EF800B16E32 /* OpenDirectory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F80BEB721E3C0EF800B16E32 /* OpenDirectory.framework */; };
 		F80BEB751E3C144600B16E32 /* dsconfigel in Copy CLI tools */ = {isa = PBXBuildFile; fileRef = F80BEB6B1E3C0CE600B16E32 /* dsconfigel */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		F8A2A7A61EEAB4B700F801BE /* EasyLogin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8A2A7A51EEAB4B700F801BE /* EasyLogin.framework */; };
 		F8AB63C11E111AB900FE9FC8 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8AB63C01E111AB900FE9FC8 /* CoreFoundation.framework */; };
 		F8AB63C51E111AB900FE9FC8 /* EasyLoginOD.h in Headers */ = {isa = PBXBuildFile; fileRef = F8AB63C41E111AB900FE9FC8 /* EasyLoginOD.h */; };
 		F8AB63C71E111AB900FE9FC8 /* EasyLoginOD.m in Sources */ = {isa = PBXBuildFile; fileRef = F8AB63C61E111AB900FE9FC8 /* EasyLoginOD.m */; };
 		F8D71E921EDB360C0087C938 /* Configuration.m in Sources */ = {isa = PBXBuildFile; fileRef = F8D71E911EDB360C0087C938 /* Configuration.m */; };
-		F8DAEFE21EE5F64000741257 /* libEasyLoginMacLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F8DAEFE11EE5F62200741257 /* libEasyLoginMacLib.a */; };
 		F8DAEFE51EE5F98600741257 /* ELODToolbox.h in Headers */ = {isa = PBXBuildFile; fileRef = F8DAEFE31EE5F98600741257 /* ELODToolbox.h */; };
 		F8DAEFE61EE5F98600741257 /* ELODToolbox.m in Sources */ = {isa = PBXBuildFile; fileRef = F8DAEFE41EE5F98600741257 /* ELODToolbox.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 /* End PBXBuildFile section */
@@ -41,13 +41,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = F80BEB6A1E3C0CE600B16E32;
 			remoteInfo = dsconfigel;
-		};
-		F8DAEFE01EE5F62200741257 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = F8DAEFDC1EE5F62200741257 /* EasyLoginMacLib.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = C43880031EBA01370052BD2F;
-			remoteInfo = EasyLoginMacLib;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -80,6 +73,7 @@
 		F80BEB6B1E3C0CE600B16E32 /* dsconfigel */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = dsconfigel; sourceTree = BUILT_PRODUCTS_DIR; };
 		F80BEB6D1E3C0CE600B16E32 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		F80BEB721E3C0EF800B16E32 /* OpenDirectory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenDirectory.framework; path = System/Library/Frameworks/OpenDirectory.framework; sourceTree = SDKROOT; };
+		F8A2A7A51EEAB4B700F801BE /* EasyLogin.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EasyLogin.framework; path = ../../../../../Library/Frameworks/EasyLogin.framework; sourceTree = "<group>"; };
 		F8AB63BD1E111AB900FE9FC8 /* io.easylogin.EasyLoginOD.xpc */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = io.easylogin.EasyLoginOD.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
 		F8AB63C01E111AB900FE9FC8 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
 		F8AB63C41E111AB900FE9FC8 /* EasyLoginOD.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EasyLoginOD.h; sourceTree = "<group>"; };
@@ -87,7 +81,6 @@
 		F8AB63CA1E111AB900FE9FC8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F8D71E901EDB360C0087C938 /* Configuration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Configuration.h; sourceTree = "<group>"; };
 		F8D71E911EDB360C0087C938 /* Configuration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Configuration.m; sourceTree = "<group>"; };
-		F8DAEFDC1EE5F62200741257 /* EasyLoginMacLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = EasyLoginMacLib.xcodeproj; path = Vendors/EasyLoginLibrary/EasyLoginMacLib/EasyLoginMacLib.xcodeproj; sourceTree = "<group>"; };
 		F8DAEFE31EE5F98600741257 /* ELODToolbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ELODToolbox.h; sourceTree = "<group>"; };
 		F8DAEFE41EE5F98600741257 /* ELODToolbox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ELODToolbox.m; sourceTree = "<group>"; };
 		F8E2D15E1EE1650B0068EC2E /* Common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Common.h; sourceTree = "<group>"; };
@@ -106,7 +99,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F8DAEFE21EE5F64000741257 /* libEasyLoginMacLib.a in Frameworks */,
+				F8A2A7A61EEAB4B700F801BE /* EasyLogin.framework in Frameworks */,
 				C4415AC91E8156650074ECA0 /* CoreData.framework in Frameworks */,
 				F8AB63C11E111AB900FE9FC8 /* CoreFoundation.framework in Frameworks */,
 			);
@@ -128,7 +121,6 @@
 		F8AB63B41E111AB900FE9FC8 = {
 			isa = PBXGroup;
 			children = (
-				F8DAEFDC1EE5F62200741257 /* EasyLoginMacLib.xcodeproj */,
 				F8E2D15E1EE1650B0068EC2E /* Common.h */,
 				F8AB63C21E111AB900FE9FC8 /* EasyLoginOD */,
 				F80BEB6C1E3C0CE600B16E32 /* dsconfigel */,
@@ -149,6 +141,7 @@
 		F8AB63BF1E111AB900FE9FC8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F8A2A7A51EEAB4B700F801BE /* EasyLogin.framework */,
 				C4415AC81E8156650074ECA0 /* CoreData.framework */,
 				F80BEB721E3C0EF800B16E32 /* OpenDirectory.framework */,
 				F8AB63C01E111AB900FE9FC8 /* CoreFoundation.framework */,
@@ -167,14 +160,6 @@
 				F8AB63CA1E111AB900FE9FC8 /* Info.plist */,
 			);
 			path = EasyLoginOD;
-			sourceTree = "<group>";
-		};
-		F8DAEFDD1EE5F62200741257 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				F8DAEFE11EE5F62200741257 /* libEasyLoginMacLib.a */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -266,12 +251,6 @@
 			mainGroup = F8AB63B41E111AB900FE9FC8;
 			productRefGroup = F8AB63BE1E111AB900FE9FC8 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = F8DAEFDD1EE5F62200741257 /* Products */;
-					ProjectRef = F8DAEFDC1EE5F62200741257 /* EasyLoginMacLib.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				F8AB63BC1E111AB900FE9FC8 /* EasyLoginOD */,
@@ -279,16 +258,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		F8DAEFE11EE5F62200741257 /* libEasyLoginMacLib.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libEasyLoginMacLib.a;
-			remoteRef = F8DAEFE01EE5F62200741257 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		C4415AD01E8158480074ECA0 /* Resources */ = {
@@ -452,7 +421,7 @@
 					__BUILDING_ODMODULE__,
 					"$(inherited)",
 				);
-				HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)";
+				HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/EasyLogin";
 				INFOPLIST_FILE = EasyLoginOD/Info.plist;
 				INSTALL_PATH = /Library/OpenDirectory/Modules/;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
@@ -480,7 +449,7 @@
 					__BUILDING_ODMODULE__,
 					"$(inherited)",
 				);
-				HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)";
+				HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/EasyLogin";
 				INFOPLIST_FILE = EasyLoginOD/Info.plist;
 				INSTALL_PATH = /Library/OpenDirectory/Modules/;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";

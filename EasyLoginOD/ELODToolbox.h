@@ -14,4 +14,8 @@
 
 - (NSDictionary*)standardInfoFromNativeInfo:(NSDictionary*)nativeInfo ofType:(NSString *)nativeType;
 
+- (NSString*)nativeAttrbuteForNativeType:(NSString *)nativeType relatedToStandardAttribute:(NSString*)standardAttribute;
+
+- (NSArray*)allNativeAttributeSupportedForType:(NSString *)nativeType;
+
 @end

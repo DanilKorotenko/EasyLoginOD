@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CloudUser</key>
+	<key>user</key>
 	<dict>
 		<key>standardToNativeMap</key>
 		<dict>
@@ -104,7 +104,7 @@
 		<key>standardType</key>
 		<string>dsRecTypeStandard:Users</string>
 	</dict>
-	<key>CloudGroup</key>
+	<key>group</key>
 	<dict>
 		<key>standardToNativeMap</key>
 		<dict>

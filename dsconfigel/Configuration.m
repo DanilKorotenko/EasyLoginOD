@@ -12,6 +12,9 @@
 
 #import "Common.h"
 
+#import <EasyLogin/EasyLogin.h>
+#include <libkern/OSAtomic.h>
+
 @interface Configuration ()
 
 @property ODSession *odSession;
@@ -71,6 +74,9 @@
         
     } else if ([@"show" isEqualToString:self.action]) {
         return [self runShowAction];
+        
+    } else if ([@"synced" isEqualToString:self.action]) {
+        return [self runSyncedAction];
     }
     
     [self showHelpAsError:NO];
@@ -84,7 +90,7 @@
 
 - (int)checkCommonRequierements {
     
-    if (![@[@"join", @"leave", @"update", @"show"] containsObject:self.action]) {
+    if (![@[@"join", @"leave", @"update", @"show", @"synced"] containsObject:self.action]) {
         fprintf(stderr, "You must specify an action to run this tool\n");
         
         [self showHelpAsError:YES];
@@ -92,7 +98,7 @@
         return EXIT_FAILURE;
     }
     
-    if (![@"show" isEqualToString:self.action]) {
+    if (![@[@"show", @"synced"] containsObject:self.action]) {
         if ([self.host length] == 0) {
             fprintf(stderr, "You must specify a target host to run this action\n");
             
@@ -205,11 +211,30 @@
     return EXIT_FAILURE;
 }
 
+- (int)runSyncedAction {
+    __block OSSpinLock waitForAsync = OS_SPINLOCK_INIT;
+    
+    OSSpinLockLock(&waitForAsync);
+    [[EasyLoginDBProxy sharedInstance] getAllRegisteredRecordsOfType:@"user"
+                                              withAttributesToReturn:@[@"shortname", @"uuid"]
+                                                andCompletionHandler:^(NSArray<NSDictionary *> *results, NSError *error) {
+                                                    for (NSDictionary *record in results) {
+                                                        fprintf(stdout, "%s\n", [[NSString stringWithFormat:@"- %@ (%@)", [record objectForKey:@"shortname"], [record objectForKey:@"uuid"]] UTF8String]);
+                                                    }
+                                                    
+                                                    OSSpinLockUnlock(&waitForAsync);
+                                                }];
+    
+    OSSpinLockLock(&waitForAsync);
+    OSSpinLockUnlock(&waitForAsync);
+    return EXIT_SUCCESS;
+}
+
 - (void)showHelpAsError:(BOOL)helpAsError {
     FILE * __restrict output = helpAsError ? stderr : stdout;
     const char *command = getprogname();
     
-    fprintf(stderr, "usage: %s -action < show | join | leave | update > ...\n", command);
+    fprintf(stderr, "usage: %s -action < show | join | leave | update | synced > ...\n", command);
     fprintf(output, "\n");
     
     fprintf(stderr, "%s -action show\n", command);
@@ -228,6 +253,10 @@
     
     fprintf(stderr, "%s -action update -host %s ...\n", command, [kEasyLoginSampleServer UTF8String]);
     fprintf(stderr, "\tUpdate current configuration settings\n");
+    fprintf(output, "\n");
+    
+    fprintf(stderr, "%s -action synced ...\n", command);
+    fprintf(stderr, "\tList records synced on this computer\n");
     fprintf(output, "\n");
     
     fprintf(output, "Defaults values for optional arguments in current context are:\n");

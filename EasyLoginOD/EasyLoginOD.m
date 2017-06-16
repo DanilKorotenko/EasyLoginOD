@@ -9,7 +9,7 @@
 
 #include "EasyLoginOD.h"
 #include <odmodule/odmodule.h>
-
+#import <objc/runtime.h>
 #import "ELODToolbox.h"
 #import <EasyLogin/EasyLogin.h>
 
@@ -521,8 +521,8 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
                 
                 odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with match type eODMatchTypeAll, start"));
                 
-                NSLock *lockUntilServerAnswered = [NSLock new];
-                [lockUntilServerAnswered lock];
+                __block OSSpinLock waitForAsync = OS_SPINLOCK_INIT;
+                OSSpinLockLock(&waitForAsync);
                 [[EasyLoginDBProxy sharedInstance] getAllRegisteredRecordsOfType:nativeRecordType
                                                           withAttributesToReturn:@[
                                                                                    [[ELODToolbox sharedInstance] nativeAttrbuteForNativeType:nativeRecordType relatedToStandardAttribute:kODAttributeTypeRecordType],
@@ -544,14 +544,13 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
                                                                     }
                                                                 }
                                                                 
-                                                                [lockUntilServerAnswered unlock];
+                                                                OSSpinLockUnlock(&waitForAsync);
                                                             }];
 
-                
-                [lockUntilServerAnswered lock];
+                OSSpinLockLock(&waitForAsync);
                 odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with match type eODMatchTypeAll, send response"));
                 odrequest_respond_success(request);
-                [lockUntilServerAnswered unlock];
+                OSSpinLockUnlock(&waitForAsync);
                 response = eODCallbackResponseAccepted;
                 
             } else {

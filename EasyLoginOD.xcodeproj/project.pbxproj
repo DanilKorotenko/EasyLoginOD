@@ -16,6 +16,7 @@
 		F8AB63C11E111AB900FE9FC8 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8AB63C01E111AB900FE9FC8 /* CoreFoundation.framework */; };
 		F8AB63C51E111AB900FE9FC8 /* EasyLoginOD.h in Headers */ = {isa = PBXBuildFile; fileRef = F8AB63C41E111AB900FE9FC8 /* EasyLoginOD.h */; };
 		F8AB63C71E111AB900FE9FC8 /* EasyLoginOD.m in Sources */ = {isa = PBXBuildFile; fileRef = F8AB63C61E111AB900FE9FC8 /* EasyLoginOD.m */; };
+		F8BDED061EED99B700A60B1E /* EasyLogin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8BDED011EED99AA00A60B1E /* EasyLogin.framework */; };
 		F8D71E921EDB360C0087C938 /* Configuration.m in Sources */ = {isa = PBXBuildFile; fileRef = F8D71E911EDB360C0087C938 /* Configuration.m */; };
 		F8DAEFE51EE5F98600741257 /* ELODToolbox.h in Headers */ = {isa = PBXBuildFile; fileRef = F8DAEFE31EE5F98600741257 /* ELODToolbox.h */; };
 		F8DAEFE61EE5F98600741257 /* ELODToolbox.m in Sources */ = {isa = PBXBuildFile; fileRef = F8DAEFE41EE5F98600741257 /* ELODToolbox.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
@@ -79,6 +80,15 @@
 		F8AB63C41E111AB900FE9FC8 /* EasyLoginOD.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EasyLoginOD.h; sourceTree = "<group>"; };
 		F8AB63C61E111AB900FE9FC8 /* EasyLoginOD.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EasyLoginOD.m; sourceTree = "<group>"; };
 		F8AB63CA1E111AB900FE9FC8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F8BDECFD1EED99AA00A60B1E /* AEProfiling.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AEProfiling.framework; sourceTree = "<group>"; };
+		F8BDECFE1EED99AA00A60B1E /* AERegistration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AERegistration.framework; sourceTree = "<group>"; };
+		F8BDECFF1EED99AA00A60B1E /* AudioMixEngine.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AudioMixEngine.framework; sourceTree = "<group>"; };
+		F8BDED001EED99AA00A60B1E /* CloudDirectoryService.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = CloudDirectoryService.framework; sourceTree = "<group>"; };
+		F8BDED011EED99AA00A60B1E /* EasyLogin.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = EasyLogin.framework; sourceTree = "<group>"; };
+		F8BDED021EED99AA00A60B1E /* EpiphanFrmGrab.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = EpiphanFrmGrab.framework; sourceTree = "<group>"; };
+		F8BDED031EED99AA00A60B1E /* iTunesLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = iTunesLibrary.framework; sourceTree = "<group>"; };
+		F8BDED041EED99AA00A60B1E /* NyxAudioAnalysis.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = NyxAudioAnalysis.framework; sourceTree = "<group>"; };
+		F8BDED051EED99AA00A60B1E /* PluginManager.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = PluginManager.framework; sourceTree = "<group>"; };
 		F8D71E901EDB360C0087C938 /* Configuration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Configuration.h; sourceTree = "<group>"; };
 		F8D71E911EDB360C0087C938 /* Configuration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Configuration.m; sourceTree = "<group>"; };
 		F8DAEFE31EE5F98600741257 /* ELODToolbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ELODToolbox.h; sourceTree = "<group>"; };
@@ -91,6 +101,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F8BDED061EED99B700A60B1E /* EasyLogin.framework in Frameworks */,
 				F80BEB731E3C0EF800B16E32 /* OpenDirectory.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -141,6 +152,7 @@
 		F8AB63BF1E111AB900FE9FC8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F8BDECFC1EED99AA00A60B1E /* Frameworks */,
 				F8A2A7A51EEAB4B700F801BE /* EasyLogin.framework */,
 				C4415AC81E8156650074ECA0 /* CoreData.framework */,
 				F80BEB721E3C0EF800B16E32 /* OpenDirectory.framework */,
@@ -160,6 +172,23 @@
 				F8AB63CA1E111AB900FE9FC8 /* Info.plist */,
 			);
 			path = EasyLoginOD;
+			sourceTree = "<group>";
+		};
+		F8BDECFC1EED99AA00A60B1E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F8BDECFD1EED99AA00A60B1E /* AEProfiling.framework */,
+				F8BDECFE1EED99AA00A60B1E /* AERegistration.framework */,
+				F8BDECFF1EED99AA00A60B1E /* AudioMixEngine.framework */,
+				F8BDED001EED99AA00A60B1E /* CloudDirectoryService.framework */,
+				F8BDED011EED99AA00A60B1E /* EasyLogin.framework */,
+				F8BDED021EED99AA00A60B1E /* EpiphanFrmGrab.framework */,
+				F8BDED031EED99AA00A60B1E /* iTunesLibrary.framework */,
+				F8BDED041EED99AA00A60B1E /* NyxAudioAnalysis.framework */,
+				F8BDED051EED99AA00A60B1E /* PluginManager.framework */,
+			);
+			name = Frameworks;
+			path = ../../../../../Library/Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -306,6 +335,10 @@
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				DEVELOPMENT_TEAM = JXHB9UP6QZ;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 			};
@@ -317,6 +350,10 @@
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				DEVELOPMENT_TEAM = JXHB9UP6QZ;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 			};
@@ -411,7 +448,9 @@
 				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
+				DEPLOYMENT_LOCATION = YES;
 				DEVELOPMENT_TEAM = JXHB9UP6QZ;
+				DSTROOT = /;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LOCAL_LIBRARY_DIR)/Frameworks",
@@ -423,7 +462,9 @@
 				);
 				HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/EasyLogin";
 				INFOPLIST_FILE = EasyLoginOD/Info.plist;
-				INSTALL_PATH = /Library/OpenDirectory/Modules/;
+				INSTALL_GROUP = wheel;
+				INSTALL_OWNER = root;
+				INSTALL_PATH = /Library/OpenDirectory/Modules;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACH_O_TYPE = mh_execute;
 				OTHER_LDFLAGS = "-lodmodule";
@@ -439,7 +480,9 @@
 				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
+				DEPLOYMENT_LOCATION = YES;
 				DEVELOPMENT_TEAM = JXHB9UP6QZ;
+				DSTROOT = /;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LOCAL_LIBRARY_DIR)/Frameworks",
@@ -451,7 +494,9 @@
 				);
 				HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/EasyLogin";
 				INFOPLIST_FILE = EasyLoginOD/Info.plist;
-				INSTALL_PATH = /Library/OpenDirectory/Modules/;
+				INSTALL_GROUP = wheel;
+				INSTALL_OWNER = root;
+				INSTALL_PATH = /Library/OpenDirectory/Modules;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACH_O_TYPE = mh_execute;
 				OTHER_LDFLAGS = "-lodmodule";

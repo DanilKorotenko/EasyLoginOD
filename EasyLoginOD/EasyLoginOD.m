@@ -510,15 +510,13 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
             
             NSNumber *matchType = [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateMatchType]];
             NSString *nativeRecordType = [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateRecordType]];
-//            NSArray *lookedValues = [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateValueList]];
-//            NSString *standardAttribute = [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateStdAttribute]];
-            
-            od_context_t context = odcontext_create(request, connection, NULL, ELReleaseOperationFromQueryContext);
-            odrequest_respond_query_start(request, context);
             
             
             if ([matchType intValue] == eODMatchTypeAll) {
                 
+                
+                od_context_t context = odcontext_create(request, connection, NULL, ELReleaseOperationFromQueryContext);
+                odrequest_respond_query_start(request, context);
                 odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with match type eODMatchTypeAll, start"));
                 
                 __block OSSpinLock waitForAsync = OS_SPINLOCK_INIT;
@@ -554,6 +552,9 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
                 response = eODCallbackResponseAccepted;
                 
             } else {
+                NSArray *lookedValues = [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateValueList]];
+                NSString *nativeAttribute = [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateAttribute]];
+
                 switch ([matchType intValue]) {
                     case eODMatchTypeContains: {
                         //                                for (NSString *targetValue in targetValues) {
@@ -568,14 +569,44 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
                     } break;
                         
                     case eODMatchTypeEqualTo: {
-                        //                                for (NSString *targetValue in targetValues) {
-                        //                                    if ([targetValue isEqualToString:lookedValue]) {
-                        //                                        xpc_object_t resultDict = cftype_to_xpctype(hardcordedUser);
-                        //
-                        //                                        odrequest_respond_query_result(request, context, resultDict);
-                        //                                        xpc_release(resultDict);
-                        //                                    }
-                        //                                }
+                        if ([lookedValues count] == 1) {
+                            od_context_t context = odcontext_create(request, connection, NULL, ELReleaseOperationFromQueryContext);
+                            odrequest_respond_query_start(request, context);
+                            odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with match type eODMatchTypeEqualTo, start"));
+                            
+                            __block OSSpinLock waitForAsync = OS_SPINLOCK_INIT;
+                            OSSpinLockLock(&waitForAsync);
+                            
+                            [[EasyLoginDBProxy sharedInstance] getRegisteredRecordUUIDsOfType:nativeRecordType
+                                                                    matchingAllAttributes:@{nativeAttribute: [lookedValues lastObject]}
+                                                                     andCompletionHandler:^(NSArray<NSDictionary *> *results, NSError *error) {
+                                                                         if (error) {
+                                                                             odrequest_log_message(request, eODLogError, CFSTR("Error when requesting information from EasyLoginDB: %@"), error);
+                                                                         } else {
+                                                                             odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with match type eODMatchTypeAll, got DB asnwer"));
+                                                                             for (NSDictionary *nativeUserInfo in results) {
+                                                                                 NSDictionary *standardUserInfo = [[ELODToolbox sharedInstance] standardInfoFromNativeInfo:nativeUserInfo ofType:nativeRecordType];
+                                                                                 
+                                                                                 odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with match type eODMatchTypeAll, answering %@"), standardUserInfo);
+                                                                                 
+                                                                                 xpc_object_t resultDict = cftype_to_xpctype(standardUserInfo);
+                                                                                 odrequest_respond_query_result(request, context, resultDict);
+                                                                                 xpc_release(resultDict);
+                                                                             }
+                                                                         }
+                                                                         
+                                                                         OSSpinLockUnlock(&waitForAsync);
+                                                                         
+                                                                     }];
+                            
+                            OSSpinLockLock(&waitForAsync);
+                            odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with match type eODMatchTypeAll, send response"));
+                            odrequest_respond_success(request);
+                            OSSpinLockUnlock(&waitForAsync);
+                            response = eODCallbackResponseAccepted;
+
+                        }
+
                     } break;
                         
                     case eODMatchTypeBeginsWith: {

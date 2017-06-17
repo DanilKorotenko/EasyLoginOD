@@ -12,7 +12,6 @@
 		F80BEB6E1E3C0CE600B16E32 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F80BEB6D1E3C0CE600B16E32 /* main.m */; };
 		F80BEB731E3C0EF800B16E32 /* OpenDirectory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F80BEB721E3C0EF800B16E32 /* OpenDirectory.framework */; };
 		F80BEB751E3C144600B16E32 /* dsconfigel in Copy CLI tools */ = {isa = PBXBuildFile; fileRef = F80BEB6B1E3C0CE600B16E32 /* dsconfigel */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		F8A2A7A61EEAB4B700F801BE /* EasyLogin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8A2A7A51EEAB4B700F801BE /* EasyLogin.framework */; };
 		F8AB63C11E111AB900FE9FC8 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8AB63C01E111AB900FE9FC8 /* CoreFoundation.framework */; };
 		F8AB63C51E111AB900FE9FC8 /* EasyLoginOD.h in Headers */ = {isa = PBXBuildFile; fileRef = F8AB63C41E111AB900FE9FC8 /* EasyLoginOD.h */; };
 		F8AB63C71E111AB900FE9FC8 /* EasyLoginOD.m in Sources */ = {isa = PBXBuildFile; fileRef = F8AB63C61E111AB900FE9FC8 /* EasyLoginOD.m */; };
@@ -20,6 +19,7 @@
 		F8D71E921EDB360C0087C938 /* Configuration.m in Sources */ = {isa = PBXBuildFile; fileRef = F8D71E911EDB360C0087C938 /* Configuration.m */; };
 		F8DAEFE51EE5F98600741257 /* ELODToolbox.h in Headers */ = {isa = PBXBuildFile; fileRef = F8DAEFE31EE5F98600741257 /* ELODToolbox.h */; };
 		F8DAEFE61EE5F98600741257 /* ELODToolbox.m in Sources */ = {isa = PBXBuildFile; fileRef = F8DAEFE41EE5F98600741257 /* ELODToolbox.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		F8DDF2E21EF59F5B00388CF5 /* EasyLogin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8A2A7A51EEAB4B700F801BE /* EasyLogin.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -36,20 +36,6 @@
 /* End PBXBuildRule section */
 
 /* Begin PBXContainerItemProxy section */
-		F8BD92C51EF4787200331DF3 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = F8BD92BF1EF4787200331DF3 /* EasyLogin.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = F87E22531EE8AC0F00CB14A0;
-			remoteInfo = EasyLogin;
-		};
-		F8BD92C71EF4787D00331DF3 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = F8BD92BF1EF4787200331DF3 /* EasyLogin.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = F87E22521EE8AC0F00CB14A0;
-			remoteInfo = EasyLogin;
-		};
 		F8D71E8E1EDB35550087C938 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F8AB63B51E111AB900FE9FC8 /* Project object */;
@@ -94,7 +80,6 @@
 		F8AB63C41E111AB900FE9FC8 /* EasyLoginOD.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EasyLoginOD.h; sourceTree = "<group>"; };
 		F8AB63C61E111AB900FE9FC8 /* EasyLoginOD.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EasyLoginOD.m; sourceTree = "<group>"; };
 		F8AB63CA1E111AB900FE9FC8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		F8BD92BF1EF4787200331DF3 /* EasyLogin.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = EasyLogin.xcodeproj; path = Vendors/EasyLoginAgentForMac/EasyLogin/EasyLogin.xcodeproj; sourceTree = "<group>"; };
 		F8BDECFD1EED99AA00A60B1E /* AEProfiling.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AEProfiling.framework; sourceTree = "<group>"; };
 		F8BDECFE1EED99AA00A60B1E /* AERegistration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AERegistration.framework; sourceTree = "<group>"; };
 		F8BDECFF1EED99AA00A60B1E /* AudioMixEngine.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AudioMixEngine.framework; sourceTree = "<group>"; };
@@ -125,7 +110,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F8A2A7A61EEAB4B700F801BE /* EasyLogin.framework in Frameworks */,
+				F8DDF2E21EF59F5B00388CF5 /* EasyLogin.framework in Frameworks */,
 				C4415AC91E8156650074ECA0 /* CoreData.framework in Frameworks */,
 				F8AB63C11E111AB900FE9FC8 /* CoreFoundation.framework in Frameworks */,
 			);
@@ -147,7 +132,6 @@
 		F8AB63B41E111AB900FE9FC8 = {
 			isa = PBXGroup;
 			children = (
-				F8BD92BF1EF4787200331DF3 /* EasyLogin.xcodeproj */,
 				F8E2D15E1EE1650B0068EC2E /* Common.h */,
 				F8AB63C21E111AB900FE9FC8 /* EasyLoginOD */,
 				F80BEB6C1E3C0CE600B16E32 /* dsconfigel */,
@@ -188,14 +172,6 @@
 				F8AB63CA1E111AB900FE9FC8 /* Info.plist */,
 			);
 			path = EasyLoginOD;
-			sourceTree = "<group>";
-		};
-		F8BD92C01EF4787200331DF3 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				F8BD92C61EF4787200331DF3 /* EasyLogin.framework */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		F8BDECFC1EED99AA00A60B1E /* Frameworks */ = {
@@ -261,7 +237,6 @@
 				C4E7B6181E815AF600A3B1A0 /* PBXBuildRule */,
 			);
 			dependencies = (
-				F8BD92C81EF4787D00331DF3 /* PBXTargetDependency */,
 				F8D71E8F1EDB35550087C938 /* PBXTargetDependency */,
 			);
 			name = EasyLoginOD;
@@ -305,12 +280,6 @@
 			mainGroup = F8AB63B41E111AB900FE9FC8;
 			productRefGroup = F8AB63BE1E111AB900FE9FC8 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = F8BD92C01EF4787200331DF3 /* Products */;
-					ProjectRef = F8BD92BF1EF4787200331DF3 /* EasyLogin.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				F8AB63BC1E111AB900FE9FC8 /* EasyLoginOD */,
@@ -318,16 +287,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		F8BD92C61EF4787200331DF3 /* EasyLogin.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = EasyLogin.framework;
-			remoteRef = F8BD92C51EF4787200331DF3 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		C4415AD01E8158480074ECA0 /* Resources */ = {
@@ -362,11 +321,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		F8BD92C81EF4787D00331DF3 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = EasyLogin;
-			targetProxy = F8BD92C71EF4787D00331DF3 /* PBXContainerItemProxy */;
-		};
 		F8D71E8F1EDB35550087C938 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = F80BEB6A1E3C0CE600B16E32 /* dsconfigel */;

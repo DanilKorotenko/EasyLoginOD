@@ -1,6 +1,0 @@
-[submodule "Vendors/EasyLoginLibrary"]
-	path = Vendors/EasyLoginLibrary
-	url = git@github.com:EasyLoginProject/EasyLoginLibrary.git
-[submodule "Vendors/EasyLoginAgentForMac"]
-	path = Vendors/EasyLoginAgentForMac
-	url = git@github.com:EasyLoginProject/EasyLoginAgentForMac.git

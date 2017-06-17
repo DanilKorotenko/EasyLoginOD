@@ -521,7 +521,7 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
                 
                 
                 [[ELAsyncBlockToManageAsOperation runOnSharedQueueOperationWithAsyncTask:^(ELAsyncBlockToManageAsOperation *currentOperation) {
-                    [[EasyLoginDBProxy sharedInstance] getAllRegisteredRecordsOfType:nativeRecordType
+                    [[ELCachingDBProxy sharedInstance] getAllRegisteredRecordsOfType:nativeRecordType
                                                               withAttributesToReturn:@[
                                                                                        [[ELODToolbox sharedInstance] nativeAttrbuteForNativeType:nativeRecordType relatedToStandardAttribute:kODAttributeTypeRecordType],
                                                                                        [[ELODToolbox sharedInstance] nativeAttrbuteForNativeType:nativeRecordType relatedToStandardAttribute:kODAttributeTypeRecordName],
@@ -580,7 +580,7 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
                             
                             
                             [[ELAsyncBlockToManageAsOperation runOnSharedQueueOperationWithAsyncTask:^(ELAsyncBlockToManageAsOperation *currentOperation) {
-                                [[EasyLoginDBProxy sharedInstance] getRegisteredRecordUUIDsOfType:nativeRecordType
+                                [[ELCachingDBProxy sharedInstance] getRegisteredRecordUUIDsOfType:nativeRecordType
                                                                             matchingAllAttributes:@{nativeAttribute: [lookedValues lastObject]}
                                                                              andCompletionHandler:^(NSArray<NSString *> *results, NSError *error) {
                                                                                  if (error) {
@@ -591,7 +591,7 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
                                                                                      
                                                                                      for (NSString *userUUID in results) {
                                                                                          [[ELAsyncBlockToManageAsOperation runOnSharedQueueOperationWithAsyncTask:^(ELAsyncBlockToManageAsOperation *currentOperation) {
-                                                                                             [[EasyLoginDBProxy sharedInstance] getRegisteredRecordOfType:nativeRecordType
+                                                                                             [[ELCachingDBProxy sharedInstance] getRegisteredRecordOfType:nativeRecordType
                                                                                                                                                  withUUID:userUUID
                                                                                                                                      andCompletionHandler:^(NSDictionary *record, NSError *error) {
                                                                                                                                          if (error) {

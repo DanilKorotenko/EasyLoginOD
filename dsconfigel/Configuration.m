@@ -218,14 +218,14 @@
     
     if ([uuid  length] > 0) {
         OSSpinLockLock(&waitForAsync);
-        [[EasyLoginDBProxy sharedInstance] getRegisteredRecordOfType:@"user" withUUID:uuid andCompletionHandler:^(NSDictionary *record, NSError *error) {
+        [[ELCachingDBProxy sharedInstance] getRegisteredRecordOfType:@"user" withUUID:uuid andCompletionHandler:^(NSDictionary *record, NSError *error) {
             fprintf(stdout, "%s\n", [[record description] UTF8String]);
             OSSpinLockUnlock(&waitForAsync);
             
         }];
     } else {
         OSSpinLockLock(&waitForAsync);
-        [[EasyLoginDBProxy sharedInstance] getAllRegisteredRecordsOfType:@"user"
+        [[ELCachingDBProxy sharedInstance] getAllRegisteredRecordsOfType:@"user"
                                                   withAttributesToReturn:@[@"shortname", @"uuid"]
                                                     andCompletionHandler:^(NSArray<NSDictionary *> *results, NSError *error) {
                                                         for (NSDictionary *record in results) {

@@ -214,17 +214,27 @@
 - (int)runSyncedAction {
     __block OSSpinLock waitForAsync = OS_SPINLOCK_INIT;
     
-    OSSpinLockLock(&waitForAsync);
-    [[EasyLoginDBProxy sharedInstance] getAllRegisteredRecordsOfType:@"user"
-                                              withAttributesToReturn:@[@"shortname", @"uuid"]
-                                                andCompletionHandler:^(NSArray<NSDictionary *> *results, NSError *error) {
-                                                    for (NSDictionary *record in results) {
-                                                        fprintf(stdout, "%s\n", [[NSString stringWithFormat:@"- %@ (%@)", [record objectForKey:@"shortname"], [record objectForKey:@"uuid"]] UTF8String]);
-                                                    }
-                                                    
-                                                    OSSpinLockUnlock(&waitForAsync);
-                                                }];
+    NSString *uuid = [[NSUserDefaults standardUserDefaults] stringForKey:@"uuid"];
     
+    if ([uuid  length] > 0) {
+        OSSpinLockLock(&waitForAsync);
+        [[EasyLoginDBProxy sharedInstance] getRegisteredRecordOfType:@"user" withUUID:uuid andCompletionHandler:^(NSDictionary *record, NSError *error) {
+            fprintf(stdout, "%s\n", [[record description] UTF8String]);
+            OSSpinLockUnlock(&waitForAsync);
+            
+        }];
+    } else {
+        OSSpinLockLock(&waitForAsync);
+        [[EasyLoginDBProxy sharedInstance] getAllRegisteredRecordsOfType:@"user"
+                                                  withAttributesToReturn:@[@"shortname", @"uuid"]
+                                                    andCompletionHandler:^(NSArray<NSDictionary *> *results, NSError *error) {
+                                                        for (NSDictionary *record in results) {
+                                                            fprintf(stdout, "%s\n", [[NSString stringWithFormat:@"- %@ (%@)", [record objectForKey:@"shortname"], [record objectForKey:@"uuid"]] UTF8String]);
+                                                        }
+                                                        
+                                                        OSSpinLockUnlock(&waitForAsync);
+                                                    }];
+    }
     OSSpinLockLock(&waitForAsync);
     OSSpinLockUnlock(&waitForAsync);
     return EXIT_SUCCESS;
@@ -246,7 +256,7 @@
     fprintf(stderr, "\tIf an authentication is requiered by the server,\n\tclient certificate will be looked in system keychain.\n");
     fprintf(output, "\n");
     
-    fprintf(stderr, "%s -action leave -host %s ...\n", command, [kEasyLoginSampleServer UTF8String]);
+    fprintf(stderr, "%s -action leave -host %s\n", command, [kEasyLoginSampleServer UTF8String]);
     fprintf(stderr, "\tLeave the target server\n");
     fprintf(stderr, "\tIf server was using certificate based authentication,\n\tcertificate will stay in system keychain.\n");
     fprintf(output, "\n");
@@ -255,8 +265,12 @@
     fprintf(stderr, "\tUpdate current configuration settings\n");
     fprintf(output, "\n");
     
-    fprintf(stderr, "%s -action synced ...\n", command);
+    fprintf(stderr, "%s -action synced\n", command);
     fprintf(stderr, "\tList records synced on this computer\n");
+    fprintf(output, "\n");
+    
+    fprintf(stderr, "%s -action synced -uuid aUUIDReturnedByTheSyncedAction\n", command);
+    fprintf(stderr, "\tShow raw informations synecd for target UUID\n");
     fprintf(output, "\n");
     
     fprintf(output, "Defaults values for optional arguments in current context are:\n");

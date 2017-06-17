@@ -9,7 +9,6 @@
 
 #include "EasyLoginOD.h"
 #include <odmodule/odmodule.h>
-#import <objc/runtime.h>
 #import "ELODToolbox.h"
 #import <EasyLogin/EasyLogin.h>
 
@@ -519,36 +518,41 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
                 odrequest_respond_query_start(request, context);
                 odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with match type eODMatchTypeAll, start"));
                 
-                __block OSSpinLock waitForAsync = OS_SPINLOCK_INIT;
-                OSSpinLockLock(&waitForAsync);
-                [[EasyLoginDBProxy sharedInstance] getAllRegisteredRecordsOfType:nativeRecordType
-                                                          withAttributesToReturn:@[
-                                                                                   [[ELODToolbox sharedInstance] nativeAttrbuteForNativeType:nativeRecordType relatedToStandardAttribute:kODAttributeTypeRecordType],
-                                                                                   [[ELODToolbox sharedInstance] nativeAttrbuteForNativeType:nativeRecordType relatedToStandardAttribute:kODAttributeTypeRecordName],
-                                                                                   ]
-                                                            andCompletionHandler:^(NSArray<NSDictionary *> *results, NSError *error) {
-                                                                if (error) {
-                                                                    odrequest_log_message(request, eODLogError, CFSTR("Error when requesting information from EasyLoginDB: %@"), error);
-                                                                } else {
-                                                                    odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with match type eODMatchTypeAll, got DB asnwer"));
-                                                                    for (NSDictionary *nativeUserInfo in results) {
-                                                                        NSDictionary *standardUserInfo = [[ELODToolbox sharedInstance] standardInfoFromNativeInfo:nativeUserInfo ofType:nativeRecordType];
-                                                                        
-                                                                        odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with match type eODMatchTypeAll, answering %@"), standardUserInfo);
-                                                                        
-                                                                        xpc_object_t resultDict = cftype_to_xpctype(standardUserInfo);
-                                                                        odrequest_respond_query_result(request, context, resultDict);
-                                                                        xpc_release(resultDict);
+                
+                
+                [[ELAsyncBlockToManageAsOperation runOnSharedQueueOperationWithAsyncTask:^(ELAsyncBlockToManageAsOperation *currentOperation) {
+                    [[EasyLoginDBProxy sharedInstance] getAllRegisteredRecordsOfType:nativeRecordType
+                                                              withAttributesToReturn:@[
+                                                                                       [[ELODToolbox sharedInstance] nativeAttrbuteForNativeType:nativeRecordType relatedToStandardAttribute:kODAttributeTypeRecordType],
+                                                                                       [[ELODToolbox sharedInstance] nativeAttrbuteForNativeType:nativeRecordType relatedToStandardAttribute:kODAttributeTypeRecordName],
+                                                                                       ]
+                                                                andCompletionHandler:^(NSArray<NSDictionary *> *results, NSError *error) {
+                                                                    if (error) {
+                                                                        odrequest_log_message(request, eODLogError, CFSTR("Error when requesting information from EasyLoginDB: %@"), error);
+                                                                    } else {
+                                                                        odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with match type eODMatchTypeAll, got DB asnwer"));
+                                                                        for (NSDictionary *nativeUserInfo in results) {
+                                                                            NSDictionary *standardUserInfo = [[ELODToolbox sharedInstance] standardInfoFromNativeInfo:nativeUserInfo ofType:nativeRecordType];
+                                                                            
+                                                                            odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with match type eODMatchTypeAll, answering %@"), standardUserInfo);
+                                                                            
+                                                                            xpc_object_t resultDict = cftype_to_xpctype(standardUserInfo);
+                                                                            odrequest_respond_query_result(request, context, resultDict);
+                                                                            xpc_release(resultDict);
+                                                                        }
                                                                     }
-                                                                }
-                                                                
-                                                                OSSpinLockUnlock(&waitForAsync);
-                                                            }];
-
-                OSSpinLockLock(&waitForAsync);
-                odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with match type eODMatchTypeAll, send response"));
+                                                                    [currentOperation considerThisOperationAsDone];
+                                                                }];
+                    
+                    
+                }
+                                                                  withCancelationHandler:^(ELAsyncBlockToManageAsOperation *currentOperation) {
+                                                                      
+                                                                  }
+                                                                             andUserInfo:nil] waitUntilFinished];
+                
+                
                 odrequest_respond_success(request);
-                OSSpinLockUnlock(&waitForAsync);
                 response = eODCallbackResponseAccepted;
                 
             } else {
@@ -574,49 +578,58 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
                             odrequest_respond_query_start(request, context);
                             odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with match type eODMatchTypeEqualTo, start"));
                             
-                            __block OSSpinLock waitForAsync = OS_SPINLOCK_INIT;
-                            OSSpinLockLock(&waitForAsync);
                             
-                            [[EasyLoginDBProxy sharedInstance] getRegisteredRecordUUIDsOfType:nativeRecordType
-                                                                    matchingAllAttributes:@{nativeAttribute: [lookedValues lastObject]}
-                                                                     andCompletionHandler:^(NSArray<NSDictionary *> *results, NSError *error) {
-                                                                         if (error) {
-                                                                             odrequest_log_message(request, eODLogError, CFSTR("Error when requesting information from EasyLoginDB: %@"), error);
-                                                                         } else {
-                                                                             odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with match type eODMatchTypeAll, got DB asnwer"));
-                                                                             for (NSString *userUUID in results) {
-                                                                                 [[EasyLoginDBProxy sharedInstance] getRegisteredRecordOfType:nativeRecordType
-                                                                                                                                     withUUID:userUUID
-                                                                                                                         andCompletionHandler:^(NSDictionary *record, NSError *error) {
-                                                                                                                             if (error) {
-                                                                                                                                 odrequest_log_message(request, eODLogError, CFSTR("Error when requesting information from EasyLoginDB: %@"), error);
-                                                                                                                             } else {
-                                                                                                                                 
-                                                                                                                                 NSDictionary *standardUserInfo = [[ELODToolbox sharedInstance] standardInfoFromNativeInfo:record ofType:nativeRecordType];
-                                                                                                                                 
-                                                                                                                                 odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with match type eODMatchTypeAll, answering %@"), standardUserInfo);
-                                                                                                                                 
-                                                                                                                                 xpc_object_t resultDict = cftype_to_xpctype(standardUserInfo);
-                                                                                                                                 odrequest_respond_query_result(request, context, resultDict);
-                                                                                                                                 xpc_release(resultDict);
-                                                                                                                             }
-                                                                                                                             
-                                                                                                                         }];
-                                                                             }
-                                                                         }
-                                                                         
-                                                                         OSSpinLockUnlock(&waitForAsync);
-                                                                         
-                                                                     }];
+                            [[ELAsyncBlockToManageAsOperation runOnSharedQueueOperationWithAsyncTask:^(ELAsyncBlockToManageAsOperation *currentOperation) {
+                                [[EasyLoginDBProxy sharedInstance] getRegisteredRecordUUIDsOfType:nativeRecordType
+                                                                            matchingAllAttributes:@{nativeAttribute: [lookedValues lastObject]}
+                                                                             andCompletionHandler:^(NSArray<NSString *> *results, NSError *error) {
+                                                                                 if (error) {
+                                                                                     odrequest_log_message(request, eODLogError, CFSTR("Error when requesting information from EasyLoginDB: %@"), error);
+                                                                                 } else {
+                                                                                     odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with match type eODMatchTypeAll, got DB asnwer"));
+                                                                                     
+                                                                                     
+                                                                                     for (NSString *userUUID in results) {
+                                                                                         [[ELAsyncBlockToManageAsOperation runOnSharedQueueOperationWithAsyncTask:^(ELAsyncBlockToManageAsOperation *currentOperation) {
+                                                                                             [[EasyLoginDBProxy sharedInstance] getRegisteredRecordOfType:nativeRecordType
+                                                                                                                                                 withUUID:userUUID
+                                                                                                                                     andCompletionHandler:^(NSDictionary *record, NSError *error) {
+                                                                                                                                         if (error) {
+                                                                                                                                             odrequest_log_message(request, eODLogError, CFSTR("Error when requesting information from EasyLoginDB: %@"), error);
+                                                                                                                                         } else {
+                                                                                                                                             
+                                                                                                                                             NSDictionary *standardUserInfo = [[ELODToolbox sharedInstance] standardInfoFromNativeInfo:record ofType:nativeRecordType];
+                                                                                                                                             
+                                                                                                                                             odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with match type eODMatchTypeAll, answering %@"), standardUserInfo);
+                                                                                                                                             
+                                                                                                                                             xpc_object_t resultDict = cftype_to_xpctype(standardUserInfo);
+                                                                                                                                             odrequest_respond_query_result(request, context, resultDict);
+                                                                                                                                             xpc_release(resultDict);
+                                                                                                                                         }
+                                                                                                                                         [currentOperation considerThisOperationAsDone];
+                                                                                                                                     }];
+                                                                                             
+                                                                                         }
+                                                                                                                                           withCancelationHandler:nil
+                                                                                                                                                      andUserInfo:nil]waitUntilFinished];
+                                                                                     }
+                                                                                     
+                                                                                 }
+                                                                                 
+                                                                                 [currentOperation considerThisOperationAsDone];
+                                                                             }];
+                                
+                            }
+                                                                              withCancelationHandler:nil
+                                                                                         andUserInfo:nil] waitUntilFinished];
                             
-                            OSSpinLockLock(&waitForAsync);
+                            
                             odrequest_log_message(request, eODLogDebug, CFSTR("******** EL query with match type eODMatchTypeAll, send response"));
                             odrequest_respond_success(request);
-                            OSSpinLockUnlock(&waitForAsync);
                             response = eODCallbackResponseAccepted;
-
+                            
                         }
-
+                        
                     } break;
                         
                     case eODMatchTypeBeginsWith: {

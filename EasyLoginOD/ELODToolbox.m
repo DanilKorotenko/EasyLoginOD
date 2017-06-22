@@ -12,6 +12,8 @@
 
 #import "Common.h"
 
+#import <CommonCrypto/CommonDigest.h>
+
 @interface ELODToolbox ()
 
 @property NSDictionary *mapping;
@@ -47,6 +49,11 @@
     
     NSMutableDictionary *translatedInfo = [NSMutableDictionary new];
     
+    [translatedInfo addEntriesFromDictionary:@{
+                                               kODAttributeTypeUserShell: @[@"/bin/bash"],
+                                               kODAttributeTypePrimaryGroupID: @[@"20"],
+                                               }];
+    
     [translatedInfo setObject:@[nativeType] forKey:kODAttributeTypeRecordType];
     
     // Then start the dance, first we look at native keys available in the current context
@@ -61,18 +68,27 @@
             
             NSMutableArray *valuesForStandardKey = [NSMutableArray new];
             
-            id nativeValue = [nativeInfo objectForKey:nativeKeyToTranslate];
+            id availableNativeValues = [nativeInfo objectForKey:nativeKeyToTranslate];
+            NSArray *nativeValuesAsObject;
             
-            if ([nativeValue isKindOfClass:[NSArray class]]) {
-                NSArray *values = nativeValue;
-                [valuesForStandardKey addObjectsFromArray:values];
+            if ([availableNativeValues isKindOfClass:[NSArray class]]) {
+                nativeValuesAsObject = availableNativeValues;
             } else {
-                [valuesForStandardKey addObject:nativeValue];
+                nativeValuesAsObject = @[availableNativeValues];
+            }
+            
+            for (id nativeValue in nativeValuesAsObject) {
+                [valuesForStandardKey addObject:[NSString stringWithFormat:@"%@", nativeValue]];
             }
             
             [translatedInfo setObject:valuesForStandardKey forKey:standardKey];
         }
     }
+    
+    [translatedInfo setObject:@[[[[NSUUID alloc] initWithUUIDString:@"96D036F8-8B22-4B97-9176-51FF063EF0E8"] UUIDString]]
+                       forKey:kODAttributeTypeGUID];
+    
+    [translatedInfo setObject:@[[NSString stringWithFormat:@"/Users/%@", [[translatedInfo objectForKey:kODAttributeTypeRecordName] lastObject]]] forKey:kODAttributeTypeNFSHomeDirectory];
     
     return translatedInfo;
 }
@@ -83,6 +99,107 @@
 
 - (NSArray*)allNativeAttributeSupportedForType:(NSString *)nativeType {
     return [[[self.mapping objectForKey:nativeType] objectForKey:kEasyLoginMappingInfosStandardToNativeKey] allValues];
+}
+
+- (BOOL)validatePassword:(NSString*)password againstAuthenticationMethods:(NSDictionary*)authMethods {
+    NSData *rawPassword = [password dataUsingEncoding:NSUTF8StringEncoding];
+    uint8_t digest[CC_SHA256_DIGEST_LENGTH];
+    
+    CC_SHA256(rawPassword.bytes, (CC_LONG)rawPassword.length, digest);
+    
+    NSMutableString* sha256String = [NSMutableString stringWithCapacity:CC_SHA256_DIGEST_LENGTH * 2];
+    
+    // Parse through the CC_SHA256 results (stored inside of digest[]).
+    for(int i = 0; i < CC_SHA256_DIGEST_LENGTH; i++) {
+        [sha256String appendFormat:@"%02x", digest[i]];
+    }
+
+    return [sha256String isEqualToString:[authMethods objectForKey:@"sha256"]];
+}
+
+
++ (NSString*) humanReadableODMatchType:(ODMatchType)matchType
+{
+    if((matchType & 0x0100) > 0) return [NSString stringWithFormat:@"DEPRECATED MATCH TYPE (CASE INSENSITIVE NOW DEFINED IN ATTR SCHEMA!) : %@",[self humanReadableODMatchType:(0xF0FF & matchType)]];
+    
+    switch (matchType) {
+        case kODMatchAny:
+            return @"kODMatchAny";
+            break;
+            
+        case kODMatchEqualTo:
+            return @"kODMatchEqualTo";
+            break;
+        case kODMatchBeginsWith:
+            return @"kODMatchBeginsWith";
+            break;
+        case kODMatchEndsWith:
+            return @"kODMatchEndsWith";
+            break;
+        case kODMatchContains:
+            return @"kODMatchContains";
+            break;
+            
+        case kODMatchGreaterThan:
+            return @"kODMatchGreaterThan";
+            break;
+        case kODMatchLessThan:
+            return @"kODMatchLessThan";
+            break;
+            
+        default:
+            return [NSString stringWithFormat:@"UNKNOWN kODMatch value:%ld",(long)matchType];
+            break;
+    }
+}
+
++ (NSString*) humanReadableODEqualityRule:(eODEqualityRule)equalityRule
+{
+    switch (equalityRule) {
+        case eODEqualityRuleNone:
+            return @"eODEqualityRuleNone";
+            break;
+        case eODEqualityRuleCaseIgnore:
+            return @"eODEqualityRuleCaseIgnore";
+            break;
+        case eODEqualityRuleCaseExact:
+            return @"eODEqualityRuleCaseExact";
+            break;
+        case eODEqualityRuleNumber:
+            return @"eODEqualityRuleNumber";
+            break;
+        case eODEqualityRuleCertificate:
+            return @"eODEqualityRuleCertificate";
+            break;
+        case eODEqualityRuleTime:
+            return @"eODEqualityRuleTime";
+            break;
+        case eODEqualityRuleTelephoneNumber:
+            return @"eODEqualityRuleTelephoneNumber";
+            break;
+        case eODEqualityRuleOctetMatch:
+            return @"eODEqualityRuleOctetMatch";
+            break;
+            
+        default:
+            return [NSString stringWithFormat:@"UNKNOWN eODEqualityRule value:%ld",(long)equalityRule];
+            break;
+    }
+    
+}
+
++ (NSDictionary*) humanReadableODPredicateDictionary:(NSDictionary *)inputDict
+{
+    NSMutableDictionary *outputDict = [inputDict mutableCopy];
+    if(inputDict[[NSString stringWithUTF8String:kODKeyPredicateMatchType]] != nil) {
+        outputDict[[NSString stringWithUTF8String:kODKeyPredicateMatchType]] = [self humanReadableODMatchType:[inputDict[[NSString stringWithUTF8String:kODKeyPredicateMatchType]] unsignedIntValue]];
+    }
+    
+    if(inputDict[[NSString stringWithUTF8String:kODKeyPredicateEquality]] != nil) {
+        outputDict[[NSString stringWithUTF8String:kODKeyPredicateEquality]] = [self humanReadableODEqualityRule:[inputDict[[NSString stringWithUTF8String:kODKeyPredicateEquality]] unsignedIntValue]];
+    }
+    
+    return outputDict;
 }
 
 @end

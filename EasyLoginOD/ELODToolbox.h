@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#include <odmodule/odcore.h>
 
 @interface ELODToolbox : NSObject
 
@@ -17,5 +18,11 @@
 - (NSString*)nativeAttrbuteForNativeType:(NSString *)nativeType relatedToStandardAttribute:(NSString*)standardAttribute;
 
 - (NSArray*)allNativeAttributeSupportedForType:(NSString *)nativeType;
+
+- (BOOL)validatePassword:(NSString*)password againstAuthenticationMethods:(NSDictionary*)authMethods;
+
++ (NSString*)humanReadableODMatchType:(ODMatchType)matchType;
++ (NSString*)humanReadableODEqualityRule:(eODEqualityRule)equalityRule;
++ (NSDictionary*)humanReadableODPredicateDictionary:(NSDictionary *)inputDict;
 
 @end

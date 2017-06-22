@@ -37,7 +37,7 @@
 			<key>dsAttrTypeStandard:FAXNumber</key>
 			<string>fax</string>
 			<key>dsAttrTypeStandard:FirstName</key>
-			<string>firstname</string>
+			<string>givenName</string>
 			<key>dsAttrTypeStandard:GeneratedUID</key>
 			<string>uuid</string>
 			<key>dsAttrTypeStandard:HomeDirectory</key>
@@ -55,7 +55,7 @@
 			<key>dsAttrTypeStandard:JobTitle</key>
 			<string>jobtitle</string>
 			<key>dsAttrTypeStandard:LastName</key>
-			<string>lastname</string>
+			<string>surname</string>
 			<key>dsAttrTypeStandard:MiddleName</key>
 			<string>middlename</string>
 			<key>dsAttrTypeStandard:MobileNumber</key>
@@ -79,7 +79,7 @@
 			<key>dsAttrTypeStandard:PrimaryGroupID</key>
 			<string>primarygroup</string>
 			<key>dsAttrTypeStandard:RealName</key>
-			<string>displayname</string>
+			<string>fullName</string>
 			<key>dsAttrTypeStandard:RecordName</key>
 			<string>shortname</string>
 			<key>dsAttrTypeStandard:RecordType</key>
@@ -89,7 +89,7 @@
 			<key>dsAttrTypeStandard:Street</key>
 			<string>street</string>
 			<key>dsAttrTypeStandard:UniqueID</key>
-			<string>uid</string>
+			<string>numericID</string>
 			<key>dsAttrTypeStandard:UserCertificate</key>
 			<string>internalcert</string>
 			<key>dsAttrTypeStandard:UserPKCS12Data</key>

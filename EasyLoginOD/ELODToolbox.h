@@ -24,5 +24,8 @@
 + (NSString*)humanReadableODMatchType:(ODMatchType)matchType;
 + (NSString*)humanReadableODEqualityRule:(eODEqualityRule)equalityRule;
 + (NSDictionary*)humanReadableODPredicateDictionary:(NSDictionary *)inputDict;
++ (NSString*)singleLineDescriptionForObject:(id)object;
 
++ (NSDictionary*)nativePredicateEquivalence:(NSDictionary *)odPredicate;
++ (NSArray*)nativePredicatesEquivalence:(NSArray *)odPredicates;
 @end

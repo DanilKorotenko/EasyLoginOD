@@ -83,7 +83,7 @@
 			<key>dsAttrTypeStandard:RecordName</key>
 			<string>shortname</string>
 			<key>dsAttrTypeStandard:RecordType</key>
-			<string>type</string>
+			<string>recordType</string>
 			<key>dsAttrTypeStandard:State</key>
 			<string>state</string>
 			<key>dsAttrTypeStandard:Street</key>

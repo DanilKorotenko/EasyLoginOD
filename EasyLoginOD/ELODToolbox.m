@@ -202,4 +202,149 @@
     return outputDict;
 }
 
++ (NSString*)singleLineDescriptionForObject:(id)object
+{
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:object options:0 error:nil];
+    
+    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+}
+
+
+
+
++ (NSString*)nativeMatchTypeEquivalence:(ODMatchType)matchType
+{
+    if((matchType & 0x0100) > 0) return [self nativeMatchTypeEquivalence:(0xF0FF & matchType)];
+    
+    switch (matchType) {
+        case kODMatchAny:
+            return @"any";
+            break;
+            
+        case kODMatchEqualTo:
+            return @"equalTo";
+            break;
+        case kODMatchBeginsWith:
+            return @"beginsWith";
+            break;
+        case kODMatchEndsWith:
+            return @"endsWith";
+            break;
+        case kODMatchContains:
+            return @"contains";
+            break;
+            
+        case kODMatchGreaterThan:
+            return @"greaterThan";
+            break;
+        case kODMatchLessThan:
+            return @"lessThan";
+            break;
+            
+        default:
+            return @"UNSUPPORTED_MATCH_TYPE";
+            break;
+    }
+}
+
+
++ (NSString*)nativeEqualityRuleEquivalence:(eODEqualityRule)equalityRule
+{
+    switch (equalityRule) {
+        case eODEqualityRuleNone:
+            return @"none";
+            break;
+        case eODEqualityRuleCaseIgnore:
+            return @"caseIgnore";
+            break;
+        case eODEqualityRuleCaseExact:
+            return @"caseExact";
+            break;
+        case eODEqualityRuleNumber:
+            return @"number";
+            break;
+        case eODEqualityRuleCertificate:
+            return @"certificate";
+            break;
+        case eODEqualityRuleTime:
+            return @"time";
+            break;
+        case eODEqualityRuleTelephoneNumber:
+            return @"telephoneNumber";
+            break;
+        case eODEqualityRuleOctetMatch:
+            return @"octetMatch";
+            break;
+            
+        default:
+            return @"UNSUPPORTED_EQUALITY_TYPE";
+            break;
+    }
+    
+}
+
++ (NSDictionary*)nativePredicateEquivalence:(NSDictionary *)odPredicate
+{
+    /*
+     * Single-Predicate keys:
+     *     kODKeyPredicateStdRecordType - The standard OD type for this predicate
+     *     kODKeyPredicateRecordType - The native record type for this module
+     *     kODKeyPredicateAttribute - The native attribute to be queried
+     *     kODKeyPredicateValueList - The values being queried
+     *     kODKeyPredicateMatchType - Is the eODMatchType requested by the client (i.e., eODMatchTypeAll, eODMatchTypeEqualTo, etc.)
+     *     kODKeyPredicateEquality - Is the eODEqualityRule dictated by the schema (i.e., eODEqualityRuleCaseIgnore, eODEqualityRuleNumber, etc.)
+     *
+     * Multi-predicate keys:
+     *     kODKeyPredicateList - an array of "Single-Predicate" entries
+     *     kODKeyPredicateOperator - How the sub-predicates should be evaluated (kODPredicateOperatorAnd, kODPredicateOperatorOr, etc.)
+     */
+
+    NSMutableDictionary *nativePredicate = [NSMutableDictionary new];
+    NSArray *subODPredicates = [odPredicate objectForKey:[NSString stringWithUTF8String:kODKeyPredicateList]];
+    if (subODPredicates) {
+        NSString *nativePredicateOperator = nil;
+        NSString *odPredicateOperator = [odPredicate objectForKey:[NSString stringWithUTF8String:kODKeyPredicateOperator]];
+        if ([odPredicateOperator isEqualToString:[NSString stringWithUTF8String:kODPredicateOperatorOr]]) {
+            nativePredicateOperator = @"OR";
+        } else if ([odPredicateOperator isEqualToString:[NSString stringWithUTF8String:kODPredicateOperatorAnd]]) {
+            nativePredicateOperator = @"AND";
+        } else if ([odPredicateOperator isEqualToString:[NSString stringWithUTF8String:kODPredicateOperatorNot]]) {
+            nativePredicateOperator = @"NOT";
+        }
+        
+        [nativePredicate setValue:nativePredicateOperator forKey:@"operator"];
+        NSString *recordType = [odPredicate objectForKey:[NSString stringWithUTF8String:kODKeyPredicateRecordType]];
+        [nativePredicate setValue:recordType forKey:@"recordType"];
+        
+        NSMutableArray *subNativePredicates = [NSMutableArray new];
+        for (NSDictionary *subODPredicate in subODPredicates) {
+            NSMutableDictionary *updatedODPredicate = [subODPredicate mutableCopy];
+            [updatedODPredicate setObject:recordType forKey:[NSString stringWithUTF8String:kODKeyPredicateRecordType]];
+            [subNativePredicates addObject:[self nativePredicateEquivalence:updatedODPredicate]];
+        }
+        
+        [nativePredicate setValue:subNativePredicates forKey:@"predicateList"];
+
+    } else {
+        NSString *recordType = [odPredicate objectForKey:[NSString stringWithUTF8String:kODKeyPredicateRecordType]];
+        [nativePredicate setValue:recordType forKey:@"recordType"];
+        [nativePredicate setValue:[[self sharedInstance] nativeAttrbuteForNativeType:recordType relatedToStandardAttribute:[odPredicate objectForKey:[NSString stringWithUTF8String:kODKeyPredicateStdAttribute]]] forKey:@"attribute"];
+        [nativePredicate setValue:[odPredicate objectForKey:[NSString stringWithUTF8String:kODKeyPredicateValueList]] forKey:@"valueList"];
+        [nativePredicate setValue:[self nativeMatchTypeEquivalence:[[odPredicate objectForKey:[NSString stringWithUTF8String:kODKeyPredicateMatchType]] intValue]] forKey:@"matchType"];
+        [nativePredicate setValue:[self nativeEqualityRuleEquivalence:[[odPredicate objectForKey:[NSString stringWithUTF8String:kODKeyPredicateEquality]] intValue]] forKey:@"equalityRule"];
+    }
+    
+    return nativePredicate;
+}
+
++ (NSArray*)nativePredicatesEquivalence:(NSArray *)odPredicates
+{
+    NSMutableArray *nativePredicates = [NSMutableArray new];
+    
+    for (NSDictionary *odPredicate in odPredicates) {
+        [nativePredicates addObject:[self nativePredicateEquivalence:odPredicate]];
+    }
+    
+    return nativePredicates;
+}
 @end

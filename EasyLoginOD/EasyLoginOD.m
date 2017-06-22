@@ -110,10 +110,10 @@ static void ELConfigLoaded(od_request_t request, od_moduleconfig_t moduleconfig)
 //    odrequest_log_message(request, eODLogInfo, CFSTR("Dynamic destination requested"));
 //
 //    xpc_object_t dict = xpc_dictionary_create(NULL, NULL, 0);
-//    
+//
 //    xpc_dictionary_set_value(dict, "host", xpc_string_create(""));
 //    xpc_dictionary_set_int64(dict, "port", 443);
-//    
+//
 //    return dict;
 //}
 
@@ -312,7 +312,7 @@ static eODCallbackResponse ELRecordVerifyPassword(od_request_t request, od_conne
                                                                                                                      odrequest_respond_error(request, kODErrorCredentialsServerError, NULL);
                                                                                                                  } else {
                                                                                                                      odrequest_log_message(request, eODLogInfo, CFSTR("Authentication infos found, validating password"));
-
+                                                                                                                     
                                                                                                                      if ([[ELODToolbox sharedInstance] validatePassword:[NSString stringWithUTF8String:password]
                                                                                                                                            againstAuthenticationMethods:[record objectForKey:@"authMethods"]]) {
                                                                                                                          odrequest_log_message(request, eODLogInfo, CFSTR("Authentication done with success"));
@@ -328,7 +328,7 @@ static eODCallbackResponse ELRecordVerifyPassword(od_request_t request, od_conne
                                                                  }
                                                                                                                    withCancelationHandler:nil
                                                                                                                               andUserInfo:nil]waitUntilFinished];
-
+                                                                 
                                                              } else {
                                                                  odrequest_log_message(request, eODLogError, CFSTR("Got %lu record of type `%s` with recordname `%s`, this is uncompatible with an authentication request"), (unsigned long)[results count], record_type, recordname);
                                                              }
@@ -355,15 +355,15 @@ static eODCallbackResponse ELRecordVerifyPassword(od_request_t request, od_conne
 //     * This is called to verify a password of a user for multi-pass authentications.  As with other authentication calls, addinfo_dict contains
 //     * additional information that may be useful to complete the authentication.  Not all methods will provide additional information.
 //     */
-//    
+//
 //    //	od_context_t context = odcontext_create(request, myContext, context_deallocator);
 //    //
 //    //	/* do some work and respond with a context accordingly */
 //    //
 //    //	return odrequest_respond_authentication_continuation(request, auth_ctx, result_array);
-//    
+//
 //    odrequest_log_message(request, eODLogInfo, CFSTR("Extended password validation of type `%s` requested for `%s` of type `%s`"), auth_type, recordname, record_type);
-//    
+//
 //    return eODCallbackResponseSkip;
 //}
 
@@ -430,6 +430,61 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
      *     return odrequest_respond_success(request);
      */
     
+#define USE_MODERN_PREDICATE_HANDLING 1
+    
+#if USE_MODERN_PREDICATE_HANDLING == 1
+    NSArray<NSDictionary*> * standardPredicateList = CFBridgingRelease(xpctype_to_cftype(predicate));
+    odrequest_log_message(request, eODLogInfo, CFSTR("Handling search request"));
+    od_context_t context = odcontext_create(request, connection, NULL, ELReleaseOperationFromQueryContext);
+    odrequest_respond_query_start(request, context);
+    
+    if (log_level_enabled(eODLogDebug)) {
+        NSMutableArray<NSDictionary*> *humanReadablePredicateList = [NSMutableArray array];
+        [standardPredicateList enumerateObjectsUsingBlock:^(NSDictionary * _Nonnull predicateDict, NSUInteger idx, BOOL * _Nonnull stop) {
+            [humanReadablePredicateList addObject:[ELODToolbox humanReadableODPredicateDictionary:predicateDict]];
+        }];
+        
+        odrequest_log_message(request, eODLogDebug, CFSTR("Handling search request with predicate:%@"), [ELODToolbox singleLineDescriptionForObject:humanReadablePredicateList]);
+    }
+    
+    NSArray<NSDictionary*> *nativePredicateList = [ELODToolbox nativePredicatesEquivalence:standardPredicateList];
+    
+    [[ELAsyncBlockToManageAsOperation runOnSharedQueueOperationWithAsyncTask:^(ELAsyncBlockToManageAsOperation *currentOperation) {
+        [[ELCachingDBProxy sharedInstance] getAllRegisteredRecordsMatchingPredicates:nativePredicateList
+                                                               withCompletionHandler:^(NSArray<NSDictionary *> *results, NSError *error) {
+                                                                   if (error) {
+                                                                       odrequest_log_message(request, eODLogError, CFSTR("Unexpected error when handling predicates: %@"), error);
+                                                                   } else {
+                                                                       odrequest_log_message(request, eODLogInfo, CFSTR("Records found matching predicate criteria: %lu"), (unsigned long)[results count]);
+                                                                       
+                                                                       
+                                                                       for (NSDictionary *record in results) {
+                                                                           NSString *nativeRecordType = [record objectForKey:@"recordType"];
+                                                                           
+                                                                           odrequest_log_message(request, eODLogInfo, CFSTR("Full record loaded, sending back the answer"));
+                                                                           NSDictionary *standardUserInfo = [[ELODToolbox sharedInstance] standardInfoFromNativeInfo:record ofType:nativeRecordType];
+                                                                           
+                                                                           if (log_level_enabled(eODLogDebug)) {
+                                                                               odrequest_log_message(request, eODLogDebug, CFSTR("Record content is: %@"), [ELODToolbox singleLineDescriptionForObject:standardUserInfo]);
+                                                                           }
+                                                                           
+                                                                           xpc_object_t resultDict = cftype_to_xpctype(standardUserInfo);
+                                                                           odrequest_respond_query_result(request, context, resultDict);
+                                                                           xpc_release(resultDict);
+                                                                       }
+                                                                   
+                                                                   }
+         
+                                                                   [currentOperation considerThisOperationAsDone];
+                                                               }];
+    }
+                                                      withCancelationHandler:nil
+                                                                 andUserInfo:nil] waitUntilFinished];
+    
+    odrequest_respond_success(request);
+    return eODCallbackResponseAccepted;
+    
+#else
     
     eODCallbackResponse response = eODCallbackResponseSkip;
     
@@ -440,8 +495,12 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
         [humanReadablePredicateList addObject:[ELODToolbox humanReadableODPredicateDictionary:predicateDict]];
     }];
     
-    odrequest_log_message(request, eODLogInfo, CFSTR("Handling search request with predicate:%@"), humanReadablePredicateList);
+    odrequest_log_message(request, eODLogInfo, CFSTR("Handling search request"));
     
+    if (log_level_enabled(eODLogDebug)) {
+        odrequest_log_message(request, eODLogDebug, CFSTR("Handling search request with predicate:%@"), [ELODToolbox singleLineDescriptionForObject:humanReadablePredicateList]);
+        odrequest_log_message(request, eODLogDebug, CFSTR("Converted predicates:%@"), [ELODToolbox singleLineDescriptionForObject:[ELODToolbox nativePredicatesEquivalence:predicateList]]);
+    }
     
     for (NSDictionary *predicatesInfo in predicateList) {
         
@@ -498,7 +557,9 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
                                                                                                                                                  odrequest_log_message(request, eODLogInfo, CFSTR("Full record loaded, sending back the answer"));
                                                                                                                                                  NSDictionary *standardUserInfo = [[ELODToolbox sharedInstance] standardInfoFromNativeInfo:record ofType:nativeRecordType];
                                                                                                                                                  
-                                                                                                                                                 odrequest_log_message(request, eODLogDebug, CFSTR("Record content is: %@"), standardUserInfo);
+                                                                                                                                                 if (log_level_enabled(eODLogDebug)) {
+                                                                                                                                                     odrequest_log_message(request, eODLogDebug, CFSTR("Record content is: %@"), [ELODToolbox singleLineDescriptionForObject:standardUserInfo]);
+                                                                                                                                                 }
                                                                                                                                                  
                                                                                                                                                  xpc_object_t resultDict = cftype_to_xpctype(standardUserInfo);
                                                                                                                                                  odrequest_respond_query_result(request, context, resultDict);
@@ -563,7 +624,9 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
                                                                         for (NSDictionary *nativeUserInfo in results) {
                                                                             NSDictionary *standardUserInfo = [[ELODToolbox sharedInstance] standardInfoFromNativeInfo:nativeUserInfo ofType:nativeRecordType];
                                                                             
-                                                                            odrequest_log_message(request, eODLogDebug, CFSTR("Record content sent is: %@"), standardUserInfo);
+                                                                            if (log_level_enabled(eODLogDebug)) {
+                                                                                odrequest_log_message(request, eODLogDebug, CFSTR("Record content sent is: %@"), [ELODToolbox singleLineDescriptionForObject:standardUserInfo]);
+                                                                            }
                                                                             
                                                                             xpc_object_t resultDict = cftype_to_xpctype(standardUserInfo);
                                                                             odrequest_respond_query_result(request, context, resultDict);
@@ -584,11 +647,33 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
                 response = eODCallbackResponseAccepted;
                 
             } else {
-                NSArray *lookedValues = [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateValueList]];
-                NSString *nativeAttribute = [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateAttribute]];
+                NSArray *rawLookedValues = [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateValueList]];
+                NSMutableArray *lookedValues = [NSMutableArray new];
+                NSString *standardAttribute = [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateStdAttribute]];
+                NSString *nativeAttribute = [[ELODToolbox sharedInstance] nativeAttrbuteForNativeType:nativeRecordType relatedToStandardAttribute:standardAttribute];
+                NSNumber *equalityType = [predicatesInfo objectForKey:[NSString stringWithUTF8String:kODKeyPredicateEquality]];
+                
+                if ([equalityType integerValue] == eODEqualityRuleNumber) {
+                    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+                    numberFormatter.numberStyle = NSNumberFormatterNoStyle;
+                    
+                    for (id value in rawLookedValues) {
+                        if ([value isKindOfClass:[NSString class]]) {
+                            NSNumber *realValue = [numberFormatter numberFromString:value];
+                            if (realValue) {
+                                [lookedValues addObject:realValue];
+                            }
+                        } else {
+                            [lookedValues addObject:value];
+                        }
+                    }
+                } else {
+                    [lookedValues addObjectsFromArray:rawLookedValues];
+                }
+                
                 
                 switch ([matchType intValue]) {
-//                    case eODMatchTypeContains: {
+                        //                    case eODMatchTypeContains: {
                         //                                for (NSString *targetValue in targetValues) {
                         //                                    if ([targetValue containsString:lookedValue]) {
                         //                                        xpc_object_t resultDict = cftype_to_xpctype(hardcordedUser);
@@ -598,7 +683,7 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
                         //                                    }
                         //
                         //                                }
-//                    } break;
+                        //                    } break;
                         
                     case eODMatchTypeEqualTo: {
                         odrequest_log_message(request, eODLogInfo, CFSTR("Predicate is looking for a specific `%@.%@` value"), nativeRecordType, nativeAttribute);
@@ -613,35 +698,39 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
                                                                                  if (error) {
                                                                                      odrequest_log_message(request, eODLogError, CFSTR("Unexpected error when handling predicate: %@"), error);
                                                                                  } else {
-                                                                                     odrequest_log_message(request, eODLogInfo, CFSTR("Records found matching predicate criteria, loading full infos"));
-                                                                                     
-                                                                                     
-                                                                                     for (NSString *userUUID in results) {
-                                                                                         [[ELAsyncBlockToManageAsOperation runOnSharedQueueOperationWithAsyncTask:^(ELAsyncBlockToManageAsOperation *currentOperation) {
-                                                                                             [[ELCachingDBProxy sharedInstance] getRegisteredRecordOfType:nativeRecordType
-                                                                                                                                                 withUUID:userUUID
-                                                                                                                                     andCompletionHandler:^(NSDictionary *record, NSError *error) {
-                                                                                                                                         if (error) {
-                                                                                                                                             odrequest_log_message(request, eODLogError, CFSTR("Unexpected error when handling predicate: %@"), error);
-                                                                                                                                         } else {
-                                                                                                                                             odrequest_log_message(request, eODLogInfo, CFSTR("Full record loaded, sending back the answer"));
-                                                                                                                                             
-                                                                                                                                             NSDictionary *standardUserInfo = [[ELODToolbox sharedInstance] standardInfoFromNativeInfo:record ofType:nativeRecordType];
-                                                                                                                                             
-                                                                                                                                             odrequest_log_message(request, eODLogDebug, CFSTR("Record content is: %@"), standardUserInfo);
-                                                                                                                                             
-                                                                                                                                             xpc_object_t resultDict = cftype_to_xpctype(standardUserInfo);
-                                                                                                                                             odrequest_respond_query_result(request, context, resultDict);
-                                                                                                                                             xpc_release(resultDict);
-                                                                                                                                         }
-                                                                                                                                         [currentOperation considerThisOperationAsDone];
-                                                                                                                                     }];
-                                                                                             
+                                                                                     if ([results count] > 0) {
+                                                                                         odrequest_log_message(request, eODLogInfo, CFSTR("Records found matching predicate criteria, loading full infos"));
+                                                                                         
+                                                                                         for (NSString *userUUID in results) {
+                                                                                             [[ELAsyncBlockToManageAsOperation runOnSharedQueueOperationWithAsyncTask:^(ELAsyncBlockToManageAsOperation *currentOperation) {
+                                                                                                 [[ELCachingDBProxy sharedInstance] getRegisteredRecordOfType:nativeRecordType
+                                                                                                                                                     withUUID:userUUID
+                                                                                                                                         andCompletionHandler:^(NSDictionary *record, NSError *error) {
+                                                                                                                                             if (error) {
+                                                                                                                                                 odrequest_log_message(request, eODLogError, CFSTR("Unexpected error when handling predicate: %@"), error);
+                                                                                                                                             } else {
+                                                                                                                                                 odrequest_log_message(request, eODLogInfo, CFSTR("Full record loaded, sending back the answer"));
+                                                                                                                                                 
+                                                                                                                                                 NSDictionary *standardUserInfo = [[ELODToolbox sharedInstance] standardInfoFromNativeInfo:record ofType:nativeRecordType];
+                                                                                                                                                 
+                                                                                                                                                 if (log_level_enabled(eODLogDebug)) {
+                                                                                                                                                     odrequest_log_message(request, eODLogDebug, CFSTR("Record content is: %@"), [ELODToolbox singleLineDescriptionForObject:standardUserInfo]);
+                                                                                                                                                 }
+                                                                                                                                                 
+                                                                                                                                                 xpc_object_t resultDict = cftype_to_xpctype(standardUserInfo);
+                                                                                                                                                 odrequest_respond_query_result(request, context, resultDict);
+                                                                                                                                                 xpc_release(resultDict);
+                                                                                                                                             }
+                                                                                                                                             [currentOperation considerThisOperationAsDone];
+                                                                                                                                         }];
+                                                                                                 
+                                                                                             }
+                                                                                                                                               withCancelationHandler:nil
+                                                                                                                                                          andUserInfo:nil]waitUntilFinished];
                                                                                          }
-                                                                                                                                           withCancelationHandler:nil
-                                                                                                                                                      andUserInfo:nil]waitUntilFinished];
+                                                                                     } else {
+                                                                                         odrequest_log_message(request, eODLogInfo, CFSTR("No records found matching predicate criteria"));
                                                                                      }
-                                                                                     
                                                                                  }
                                                                                  
                                                                                  [currentOperation considerThisOperationAsDone];
@@ -663,7 +752,7 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
                         
                     } break;
                         
-//                    case eODMatchTypeBeginsWith: {
+                        //                    case eODMatchTypeBeginsWith: {
                         //                                for (NSString *targetValue in targetValues) {
                         //                                    if ([targetValue rangeOfString:lookedValue].location == 0) {
                         //                                        xpc_object_t resultDict = cftype_to_xpctype(hardcordedUser);
@@ -673,9 +762,9 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
                         //                                    }
                         //                                }
                         
-//                    } break;
+                        //                    } break;
                         
-//                    case eODMatchTypeEndsWith: {
+                        //                    case eODMatchTypeEndsWith: {
                         //                                for (NSString *targetValue in targetValues) {
                         //                                    if ([targetValue rangeOfString:lookedValue].location == [targetValue length] - [lookedValue length]) {
                         //                                        xpc_object_t resultDict = cftype_to_xpctype(hardcordedUser);
@@ -685,7 +774,7 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
                         //                                    }
                         //                                }
                         
-//                    } break;
+                        //                    } break;
                         
                     default: {
                         odrequest_log_message(request, eODLogError, CFSTR("Unknown predicate!"));
@@ -696,8 +785,9 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
             }
         }
     }
-    
     return response;
+    
+#endif
 }
 
 //static eODCallbackResponse ELQuerySynchronize(od_request_t request, od_connection_t connection, od_context_t query_context)
@@ -713,9 +803,9 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
 //     *  \returns Typically eODCallbackResponseAccepted to indicate that the module accepted
 //     *  the request, but other eODCallbackResponseXxx values are allowed.
 //     */
-//    
+//
 //    odrequest_log_message(request, eODLogInfo, CFSTR("Synchronization request recieved, not supported at this time"));
-//    
+//
 //    return eODCallbackResponseSkip;
 //}
 
@@ -732,9 +822,9 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
 //     *  \returns Typically eODCallbackResponseAccepted to indicate that the module accepted
 //     *  the request, but other eODCallbackResponseXxx values are allowed.
 //     */
-//    
+//
 //    odrequest_log_message(request, eODLogInfo, CFSTR("Cancelation request recieved, not supported at this time"));
-//    
+//
 //    return eODCallbackResponseSkip;
 //}
 
@@ -750,7 +840,7 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
 //static eODCallbackResponse ELNodeCopySupportedPolicies(od_request_t request, od_connection_t connection)
 //{
 //    /* responds with a dictionary of supported policies */
-//    
+//
 //    odrequest_log_message(request, eODLogInfo, CFSTR("Supported node policy request recieved, not supported at this time"));
 //    return eODCallbackResponseSkip;
 //}
@@ -780,7 +870,7 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
 
 //static eODCallbackResponse ELRecordCopySupportedPolicies(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, xpc_object_t addinfo_dict)
 //{
-//    
+//
 //    odrequest_log_message(request, eODLogInfo, CFSTR("Record supported policy request recieved, not supported at this time"));
 //    /* returns the policies supported by this record */
 //    return eODCallbackResponseSkip;
@@ -789,30 +879,30 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
 
 #pragma mark - Password expiration and locked account
 
-static eODCallbackResponse ELRecordAuthenticationAllowed(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, xpc_object_t addinfo_dict)
-{
-    odrequest_log_message(request, eODLogInfo, CFSTR("Checking if record has right to get authenticated"));
-    
-    return eODCallbackResponseAccepted;
-}
-
-static eODCallbackResponse ELRecordPasswordChangeAllowed(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, const char *password, xpc_object_t addinfo_dict)
-{
-    odrequest_log_message(request, eODLogInfo, CFSTR("Checking if record has right to change its password"));
-    return eODCallbackResponseSkip;
-}
-
-static eODCallbackResponse ELRecordWillPasswordExpire(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, int64_t expires_in, xpc_object_t addinfo_dict)
-{
-    odrequest_log_message(request, eODLogInfo, CFSTR("Checking if record's password will expire"));
-    return eODCallbackResponseSkip;
-}
-
-static eODCallbackResponse ELRecordSecondsUntilPasswordExpires(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, xpc_object_t addinfo_dict)
-{
-    odrequest_log_message(request, eODLogInfo, CFSTR("Sending time in second before password expiration"));
-    return eODCallbackResponseSkip;
-}
+//static eODCallbackResponse ELRecordAuthenticationAllowed(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, xpc_object_t addinfo_dict)
+//{
+//    odrequest_log_message(request, eODLogInfo, CFSTR("Checking if record has right to get authenticated"));
+//
+//    return eODCallbackResponseAccepted;
+//}
+//
+//static eODCallbackResponse ELRecordPasswordChangeAllowed(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, const char *password, xpc_object_t addinfo_dict)
+//{
+//    odrequest_log_message(request, eODLogInfo, CFSTR("Checking if record has right to change its password"));
+//    return eODCallbackResponseSkip;
+//}
+//
+//static eODCallbackResponse ELRecordWillPasswordExpire(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, int64_t expires_in, xpc_object_t addinfo_dict)
+//{
+//    odrequest_log_message(request, eODLogInfo, CFSTR("Checking if record's password will expire"));
+//    return eODCallbackResponseSkip;
+//}
+//
+//static eODCallbackResponse ELRecordSecondsUntilPasswordExpires(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, xpc_object_t addinfo_dict)
+//{
+//    odrequest_log_message(request, eODLogInfo, CFSTR("Sending time in second before password expiration"));
+//    return eODCallbackResponseSkip;
+//}
 
 #pragma mark - Node authentication / used by dscl for test login
 
@@ -829,7 +919,7 @@ static eODCallbackResponse ELRecordSecondsUntilPasswordExpires(od_request_t requ
 //     * must return eODCallbackResponseAccepted if it is to be handled, or use the return from the odrequest_respond* APIs.
 //     */
 //    odrequest_log_message(request, eODLogInfo, CFSTR("Credential set for node. Not supported at this time"));
-//    
+//
 //    return eODCallbackResponseSkip;
 //}
 
@@ -843,31 +933,31 @@ int main(int argc, const char *argv[])
         .odm_initialize = ELModuleInit,
         .odm_configuration_loaded = ELConfigLoaded,
         .odm_create_connection_with_options = ELCreateConnectionWithOptions,
-//        .odm_parse_dynamic_destination = ELParseDynamicDestination,
+        //        .odm_parse_dynamic_destination = ELParseDynamicDestination,
         .odm_copy_details = ELCopyDetails,
         
-//        .odm_NodeCopyPolicies = ELNodeCopyPolicies,
-//        .odm_NodeCopySupportedPolicies = ELNodeCopySupportedPolicies,
+        //        .odm_NodeCopyPolicies = ELNodeCopyPolicies,
+        //        .odm_NodeCopySupportedPolicies = ELNodeCopySupportedPolicies,
         
         .odm_QueryCreateWithPredicates = ELQueryCreateWithPredicates,
-//        .odm_QuerySynchronize = ELQuerySynchronize,
-//        .odm_QueryCancel = ELQueryCancel,
+        //        .odm_QuerySynchronize = ELQuerySynchronize,
+        //        .odm_QueryCancel = ELQueryCancel,
         
-//        .odm_RecordCopyPolicies = ELRecordCopyPolicies,
-//        .odm_RecordCopyEffectivePolicies = ELRecordCopyEffectivePolicies,
-//        .odm_RecordCopySupportedPolicies = ELRecordCopySupportedPolicies,
+        //        .odm_RecordCopyPolicies = ELRecordCopyPolicies,
+        //        .odm_RecordCopyEffectivePolicies = ELRecordCopyEffectivePolicies,
+        //        .odm_RecordCopySupportedPolicies = ELRecordCopySupportedPolicies,
         
         .odm_copy_auth_information = ELCopyAuthInfo,
         .odm_RecordVerifyPassword = ELRecordVerifyPassword,
-//        .odm_RecordVerifyPasswordExtended = ELRecordVerifyPasswordExtended,
+        //        .odm_RecordVerifyPasswordExtended = ELRecordVerifyPasswordExtended,
         .odm_RecordChangePassword = ELRecordChangePassword,
         
-        .odm_RecordAuthenticationAllowed = ELRecordAuthenticationAllowed,
-        .odm_RecordPasswordChangeAllowed = ELRecordPasswordChangeAllowed,
-        .odm_RecordWillPasswordExpire = ELRecordWillPasswordExpire,
-        .odm_RecordSecondsUntilPasswordExpires = ELRecordSecondsUntilPasswordExpires,
+        //        .odm_RecordAuthenticationAllowed = ELRecordAuthenticationAllowed,
+        //        .odm_RecordPasswordChangeAllowed = ELRecordPasswordChangeAllowed,
+        //        .odm_RecordWillPasswordExpire = ELRecordWillPasswordExpire,
+        //        .odm_RecordSecondsUntilPasswordExpires = ELRecordSecondsUntilPasswordExpires,
         
-//        .odm_NodeSetCredentials = ELNodeSetCredentials,
+        //        .odm_NodeSetCredentials = ELNodeSetCredentials,
         
     };
     

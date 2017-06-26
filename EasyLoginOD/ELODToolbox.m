@@ -84,10 +84,7 @@
             [translatedInfo setObject:valuesForStandardKey forKey:standardKey];
         }
     }
-    
-    [translatedInfo setObject:@[[[[NSUUID alloc] initWithUUIDString:@"96D036F8-8B22-4B97-9176-51FF063EF0E8"] UUIDString]]
-                       forKey:kODAttributeTypeGUID];
-    
+        
     [translatedInfo setObject:@[[NSString stringWithFormat:@"/Users/%@", [[translatedInfo objectForKey:kODAttributeTypeRecordName] lastObject]]] forKey:kODAttributeTypeNFSHomeDirectory];
     
     return translatedInfo;

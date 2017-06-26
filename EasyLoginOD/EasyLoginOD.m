@@ -289,83 +289,57 @@ static eODCallbackResponse ELRecordVerifyPassword(od_request_t request, od_conne
 #warning (ygi) Passwords sent to this method seems to always be in clear text when comming from the loginwindow or the shell. We need to check how this work when using file sharing and screen sharing.
     
     odrequest_log_message(request, eODLogInfo, CFSTR("Password validation requested for `%s` of type `%s`"), recordname, record_type);
+
+    
+    NSDictionary * userInfo = CFBridgingRelease(xpctype_to_cftype(addinfo_dict));
     
     [[ELAsyncBlockToManageAsOperation runOnSharedQueueOperationWithAsyncTask:^(ELAsyncBlockToManageAsOperation *currentOperation) {
-        [[ELCachingDBProxy sharedInstance] getRegisteredRecordUUIDsOfType:[NSString stringWithUTF8String:record_type]
-                                                    matchingAllAttributes:@{@"shortname": [NSString stringWithUTF8String:recordname]}
-                                                     andCompletionHandler:^(NSArray<NSString *> *results, NSError *error) {
-                                                         if (error != nil || [results count] != 1) {
-                                                             odrequest_log_message(request, eODLogError, CFSTR("Unexpected error when retriving record of type `%s` with recordname `%s`: %@"), record_type, recordname, error);
-                                                             odrequest_respond_error(request, kODErrorCredentialsServerError, NULL);
-                                                         } else {
-                                                             if ([results count] == 1) {
-                                                                 odrequest_log_message(request, eODLogInfo, CFSTR("Requested record found, now looking for authentication infos"));
-                                                                 
-                                                                 NSString *userUUID = [results lastObject];
-                                                                 
-                                                                 [[ELAsyncBlockToManageAsOperation runOnSharedQueueOperationWithAsyncTask:^(ELAsyncBlockToManageAsOperation *currentOperation) {
-                                                                     [[ELCachingDBProxy sharedInstance] getRegisteredRecordOfType:[NSString stringWithUTF8String:record_type]
-                                                                                                                         withUUID:userUUID
-                                                                                                             andCompletionHandler:^(NSDictionary *record, NSError *error) {
-                                                                                                                 if (error) {
-                                                                                                                     odrequest_log_message(request, eODLogError, CFSTR("Unexpected error when retriving record for user `%s`: %@"), recordname, error);
-                                                                                                                     odrequest_respond_error(request, kODErrorCredentialsServerError, NULL);
-                                                                                                                 } else {
-                                                                                                                     odrequest_log_message(request, eODLogInfo, CFSTR("Authentication infos found, validating password"));
-                                                                                                                     
-                                                                                                                     if ([[ELODToolbox sharedInstance] validatePassword:[NSString stringWithUTF8String:password]
-                                                                                                                                           againstAuthenticationMethods:[record objectForKey:@"authMethods"]]) {
-                                                                                                                         odrequest_log_message(request, eODLogInfo, CFSTR("Authentication done with success"));
-                                                                                                                         odrequest_respond_error(request, kODErrorSuccess, NULL);
-                                                                                                                     } else {
-                                                                                                                         odrequest_log_message(request, eODLogInfo, CFSTR("Authentication done with failure"));
-                                                                                                                         odrequest_respond_error(request, kODErrorCredentialsInvalid, NULL);
-                                                                                                                     }
-                                                                                                                 }
-                                                                                                                 [currentOperation considerThisOperationAsDone];
-                                                                                                             }];
-                                                                     
-                                                                 }
-                                                                                                                   withCancelationHandler:nil
-                                                                                                                              andUserInfo:nil]waitUntilFinished];
-                                                                 
-                                                             } else {
-                                                                 odrequest_log_message(request, eODLogError, CFSTR("Got %lu record of type `%s` with recordname `%s`, this is uncompatible with an authentication request"), (unsigned long)[results count], record_type, recordname);
-                                                             }
-                                                         }
-                                                         
-                                                         [currentOperation considerThisOperationAsDone];
-                                                     }];
+        [[ELCachingDBProxy sharedInstance] getRegisteredRecordOfType:[NSString stringWithUTF8String:record_type]
+                                                            withUUID:[[[userInfo objectForKey:@"user details"] objectForKey:kODAttributeTypeGUID] lastObject]
+                                                andCompletionHandler:^(NSDictionary *record, NSError *error) {
+                                                    if (error) {
+                                                        odrequest_log_message(request, eODLogError, CFSTR("Unexpected error when retriving record for user `%s`: %@"), recordname, error);
+                                                        odrequest_respond_error(request, kODErrorCredentialsServerError, NULL);
+                                                    } else {
+                                                        odrequest_log_message(request, eODLogInfo, CFSTR("Authentication infos found, validating password"));
+                                                        
+                                                        if ([[ELODToolbox sharedInstance] validatePassword:[NSString stringWithUTF8String:password]
+                                                                              againstAuthenticationMethods:[record objectForKey:@"authMethods"]]) {
+                                                            odrequest_log_message(request, eODLogInfo, CFSTR("Authentication done with success"));
+                                                            odrequest_respond_error(request, kODErrorSuccess, NULL);
+                                                        } else {
+                                                            odrequest_log_message(request, eODLogInfo, CFSTR("Authentication done with failure"));
+                                                            odrequest_respond_error(request, kODErrorCredentialsInvalid, NULL);
+                                                        }
+                                                    }
+                                                    [currentOperation considerThisOperationAsDone];
+                                                }];
         
     }
                                                       withCancelationHandler:nil
-                                                                 andUserInfo:nil] waitUntilFinished];
-    
-    
-    
-    
+                                                                 andUserInfo:nil]waitUntilFinished];
     
     return eODCallbackResponseAccepted;
 }
 
-//static eODCallbackResponse ELRecordVerifyPasswordExtended(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, const char *auth_type, eODAuthType od_auth_type,
-//                                                          xpc_object_t auth_items, od_context_t auth_context, xpc_object_t addinfo_dict)
-//{
-//    /*
-//     * This is called to verify a password of a user for multi-pass authentications.  As with other authentication calls, addinfo_dict contains
-//     * additional information that may be useful to complete the authentication.  Not all methods will provide additional information.
-//     */
-//
-//    //	od_context_t context = odcontext_create(request, myContext, context_deallocator);
-//    //
-//    //	/* do some work and respond with a context accordingly */
-//    //
-//    //	return odrequest_respond_authentication_continuation(request, auth_ctx, result_array);
-//
-//    odrequest_log_message(request, eODLogInfo, CFSTR("Extended password validation of type `%s` requested for `%s` of type `%s`"), auth_type, recordname, record_type);
-//
-//    return eODCallbackResponseSkip;
-//}
+static eODCallbackResponse ELRecordVerifyPasswordExtended(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, const char *auth_type, eODAuthType od_auth_type,
+                                                          xpc_object_t auth_items, od_context_t auth_context, xpc_object_t addinfo_dict)
+{
+    /*
+     * This is called to verify a password of a user for multi-pass authentications.  As with other authentication calls, addinfo_dict contains
+     * additional information that may be useful to complete the authentication.  Not all methods will provide additional information.
+     */
+
+    //	od_context_t context = odcontext_create(request, myContext, context_deallocator);
+    //
+    //	/* do some work and respond with a context accordingly */
+    //
+    //	return odrequest_respond_authentication_continuation(request, auth_ctx, result_array);
+
+    odrequest_log_message(request, eODLogInfo, CFSTR("Extended password validation of type `%s` requested for `%s` of type `%s`"), auth_type, recordname, record_type);
+
+    return eODCallbackResponseSkip;
+}
 
 static eODCallbackResponse ELRecordChangePassword(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, const char *old_password, const char *new_password, xpc_object_t addinfo_dict)
 {
@@ -376,7 +350,55 @@ static eODCallbackResponse ELRecordChangePassword(od_request_t request, od_conne
     
     odrequest_log_message(request, eODLogInfo, CFSTR("Password change requested for `%s` of type `%s`"), recordname, record_type);
     
-    return eODCallbackResponseSkip;
+    if (addinfo_dict) {
+        NSDictionary * userInfo = CFBridgingRelease(xpctype_to_cftype(addinfo_dict));
+        odrequest_log_message(request, eODLogError, CFSTR("Password change requested for `%s` of type `%s` with unsupported additional info: %@"), recordname, record_type, userInfo);
+    }
+    
+    __block BOOL success = YES;
+    __block NSInteger errorCode = 0;
+    [[ELAsyncBlockToManageAsOperation runOnSharedQueueOperationWithAsyncTask:^(ELAsyncBlockToManageAsOperation *currentOperation) {
+        [[ELCachingDBProxy sharedInstance] getRegisteredRecordUUIDsOfType:[NSString stringWithUTF8String:record_type]
+                                                    matchingAllAttributes:@{@"shortname": [NSString stringWithUTF8String:recordname]}
+                                                              andCompletionHandler:^(NSArray<NSString*> *results, NSError *error) {
+                                                                  if ([results count] == 1) {
+                                                                      
+                                                                      [[ELServer sharedInstance] getRecordWithEntityClass:[ELUser recordClass] andUniqueIdentifier:[results lastObject] completionBlock:^(__kindof ELRecord * _Nullable record, NSError * _Nullable error) {
+                                                                          [[ELServer sharedInstance] updateRecord:record
+                                                                                                  withNewPassword:[NSString stringWithUTF8String:new_password]
+                                                                                                 usingOldPassword:[NSString stringWithUTF8String:old_password]
+                                                                                                  completionBlock:^(__kindof ELRecord * _Nullable updatedRecord, NSError * _Nullable error) {
+                                                                                                      if (!error) {
+                                                                                                          success = YES;
+                                                                                                          errorCode = 0;
+                                                                                                      } else {
+                                                                                                          success = NO;
+                                                                                                          errorCode = error.code;
+                                                                                                      }
+                                                                                                      [currentOperation considerThisOperationAsDone];
+                                                                                                  }];
+                                                                      }];
+
+                                                                  } else {
+                                                                      success = NO;
+                                                                      errorCode = error.code;
+                                                                      [currentOperation considerThisOperationAsDone];
+                                                                  }
+                                                              }];
+    }
+                                                      withCancelationHandler:nil
+                                                                 andUserInfo:nil] waitUntilFinished];
+    if (success) {
+        odrequest_respond_success(request);
+    } else if (errorCode == 404) {
+        odrequest_respond_error(request, kODErrorCredentialsServerNotFound, NULL);
+    } else if (errorCode == -1009) {
+        odrequest_respond_error(request, kODErrorCredentialsServerUnreachable, NULL);
+    } else {
+        odrequest_respond_error(request, kODErrorCredentialsServerCommunicationError, NULL);
+    }
+
+    return eODCallbackResponseAccepted;
 }
 
 #pragma mark - Query support
@@ -879,19 +901,23 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
 
 #pragma mark - Password expiration and locked account
 
-//static eODCallbackResponse ELRecordAuthenticationAllowed(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, xpc_object_t addinfo_dict)
-//{
-//    odrequest_log_message(request, eODLogInfo, CFSTR("Checking if record has right to get authenticated"));
-//
-//    return eODCallbackResponseAccepted;
-//}
-//
-//static eODCallbackResponse ELRecordPasswordChangeAllowed(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, const char *password, xpc_object_t addinfo_dict)
-//{
-//    odrequest_log_message(request, eODLogInfo, CFSTR("Checking if record has right to change its password"));
-//    return eODCallbackResponseSkip;
-//}
-//
+static eODCallbackResponse ELRecordAuthenticationAllowed(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, xpc_object_t addinfo_dict)
+{
+    odrequest_log_message(request, eODLogInfo, CFSTR("Checking if record has right to get authenticated"));
+
+    odrequest_respond_success(request);
+    
+    return eODCallbackResponseAccepted;
+}
+
+static eODCallbackResponse ELRecordPasswordChangeAllowed(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, const char *password, xpc_object_t addinfo_dict)
+{
+    odrequest_log_message(request, eODLogInfo, CFSTR("Checking if record has right to change its password"));
+    odrequest_respond_success(request);
+
+    return eODCallbackResponseAccepted;
+}
+
 //static eODCallbackResponse ELRecordWillPasswordExpire(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, int64_t expires_in, xpc_object_t addinfo_dict)
 //{
 //    odrequest_log_message(request, eODLogInfo, CFSTR("Checking if record's password will expire"));
@@ -949,10 +975,10 @@ int main(int argc, const char *argv[])
         
         .odm_copy_auth_information = ELCopyAuthInfo,
         .odm_RecordVerifyPassword = ELRecordVerifyPassword,
-        //        .odm_RecordVerifyPasswordExtended = ELRecordVerifyPasswordExtended,
+        .odm_RecordVerifyPasswordExtended = ELRecordVerifyPasswordExtended,
         .odm_RecordChangePassword = ELRecordChangePassword,
         
-        //        .odm_RecordAuthenticationAllowed = ELRecordAuthenticationAllowed,
+        .odm_RecordAuthenticationAllowed = ELRecordAuthenticationAllowed,
         //        .odm_RecordPasswordChangeAllowed = ELRecordPasswordChangeAllowed,
         //        .odm_RecordWillPasswordExpire = ELRecordWillPasswordExpire,
         //        .odm_RecordSecondsUntilPasswordExpires = ELRecordSecondsUntilPasswordExpires,

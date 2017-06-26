@@ -28,4 +28,5 @@
 
 + (NSDictionary*)nativePredicateEquivalence:(NSDictionary *)odPredicate;
 + (NSArray*)nativePredicatesEquivalence:(NSArray *)odPredicates;
+
 @end

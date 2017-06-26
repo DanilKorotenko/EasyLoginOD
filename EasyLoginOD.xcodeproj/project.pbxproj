@@ -464,8 +464,6 @@
 				);
 				HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/EasyLogin";
 				INFOPLIST_FILE = EasyLoginOD/Info.plist;
-				INSTALL_GROUP = wheel;
-				INSTALL_OWNER = root;
 				INSTALL_PATH = /Library/OpenDirectory/Modules;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
@@ -498,8 +496,6 @@
 				);
 				HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/EasyLogin";
 				INFOPLIST_FILE = EasyLoginOD/Info.plist;
-				INSTALL_GROUP = wheel;
-				INSTALL_OWNER = root;
 				INSTALL_PATH = /Library/OpenDirectory/Modules;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (

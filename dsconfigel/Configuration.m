@@ -38,9 +38,16 @@
     self = [super init];
     if (self) {
         [[NSUserDefaults standardUserDefaults] registerDefaults:@{
+                                                                  @"queryTimeout": @30,
+                                                                  @"idleTimeout": @120,
+                                                                  @"setupTimeout": @15,
                                                                   }];
         
         _action = [[NSUserDefaults standardUserDefaults] stringForKey:@"action"];
+        
+        _queryTimeout = [[NSUserDefaults standardUserDefaults] integerForKey:@"queryTimeout"];
+        _idleTimeout = [[NSUserDefaults standardUserDefaults] integerForKey:@"idleTimeout"];
+        _setupTimeout = [[NSUserDefaults standardUserDefaults] integerForKey:@"setupTimeout"];
 
     }
     return self;
@@ -98,8 +105,11 @@
         return EXIT_FAILURE;
     }
     
+    odConfig.queryTimeoutInSeconds = self.queryTimeout;
+    odConfig.connectionIdleTimeoutInSeconds = self.idleTimeout;
+    odConfig.connectionSetupTimeoutInSeconds = self.setupTimeout;
+    
     ODMappings *odMaps = [ODMappings mappings];
-//    odMaps.function = [NSString stringWithFormat:@"%@:translate_recordtype", kEasyLoginODModuleBundleName];
     odConfig.defaultMappings = odMaps;
     
     NSString *odModulePath = [NSString stringWithFormat:@"/Library/OpenDirectory/Modules/%@.xpc/Contents/Resources/ELMapping.plist", kEasyLoginODModuleBundleName];

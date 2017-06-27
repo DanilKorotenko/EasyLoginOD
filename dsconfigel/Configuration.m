@@ -38,19 +38,9 @@
     self = [super init];
     if (self) {
         [[NSUserDefaults standardUserDefaults] registerDefaults:@{
-                                                                  @"port": @443,
-                                                                  @"queryTimeout": @30,
-                                                                  @"idleTimeout": @120,
-                                                                  @"setupTimeout": @15,
                                                                   }];
         
         _action = [[NSUserDefaults standardUserDefaults] stringForKey:@"action"];
-        _host = [[NSUserDefaults standardUserDefaults] stringForKey:@"host"];
-        _port = [[NSUserDefaults standardUserDefaults] integerForKey:@"port"];
-        
-        _queryTimeout = [[NSUserDefaults standardUserDefaults] integerForKey:@"queryTimeout"];
-        _idleTimeout = [[NSUserDefaults standardUserDefaults] integerForKey:@"idleTimeout"];
-        _setupTimeout = [[NSUserDefaults standardUserDefaults] integerForKey:@"setupTimeout"];
 
     }
     return self;
@@ -63,20 +53,13 @@
         return returnedStatus;
     }
     
-    if ([@"join" isEqualToString:self.action]) {
-        return [self runJoinAction];
+    if ([@"load" isEqualToString:self.action]) {
+        return [self runLoadAction];
         
-    } else if ([@"leave" isEqualToString:self.action]) {
-        return [self runLeaveAction];
+    }
+    else if ([@"unload" isEqualToString:self.action]) {
+        return [self runUnloadAction];
         
-    } else if ([@"update" isEqualToString:self.action]) {
-        return [self runUpdateAction];
-        
-    } else if ([@"show" isEqualToString:self.action]) {
-        return [self runShowAction];
-        
-    } else if ([@"synced" isEqualToString:self.action]) {
-        return [self runSyncedAction];
     }
     
     [self showHelpAsError:NO];
@@ -89,44 +72,25 @@
 }
 
 - (int)checkCommonRequierements {
+    self.odSession = [ODSession defaultSession];
     
-    if (![@[@"join", @"leave", @"update", @"show", @"synced"] containsObject:self.action]) {
-        fprintf(stderr, "You must specify an action to run this tool\n");
-        
-        [self showHelpAsError:YES];
-        
+    if (!self.odSession) {
+        fprintf(stderr, "EasyLogin were unable to create a new OD session\n");
         return EXIT_FAILURE;
     }
     
-    if (![@[@"show", @"synced"] containsObject:self.action]) {
-        if ([self.host length] == 0) {
-            fprintf(stderr, "You must specify a target host to run this action\n");
-            
-            [self showHelpAsError:YES];
-            
-            return EXIT_FAILURE;
-        }
-        
-        self.odSession = [ODSession defaultSession];
-        
-        if (!self.odSession) {
-            fprintf(stderr, "EasyLogin were unable to create a new OD session\n");
-            return EXIT_FAILURE;
-        }
-        
-        NSError *error = nil;
-        self.sfAuth = [self.odSession configurationAuthorizationAllowingUserInteraction:YES error:&error];
-        
-        if (!self.sfAuth) {
-            fprintf(stderr, "EasyLogin were unable to get an authorized OD session:\n%s\n", [[error description] UTF8String]);
-            return EXIT_FAILURE;
-        }
+    NSError *error = nil;
+    self.sfAuth = [self.odSession configurationAuthorizationAllowingUserInteraction:YES error:&error];
+    
+    if (!self.sfAuth) {
+        fprintf(stderr, "EasyLogin were unable to get an authorized OD session:\n%s\n", [[error description] UTF8String]);
+        return EXIT_FAILURE;
     }
     
     return EXIT_SUCCESS;
 }
 
-- (int)runJoinAction {
+- (int)runLoadAction {
     ODConfiguration *odConfig = [ODConfiguration configuration];
     
     if (!odConfig) {
@@ -192,7 +156,7 @@
     return EXIT_SUCCESS;
 }
 
-- (int)runLeaveAction {
+- (int)runUnloadAction {
     NSError *error = nil;
     
     if (![self.odSession deleteConfigurationWithNodename:[self nodeMountPath] authorization:self.sfAuth error:&error]) {
@@ -203,93 +167,21 @@
     return EXIT_SUCCESS;
 }
 
-- (int)runUpdateAction {
-    return EXIT_FAILURE;
-}
-
-- (int)runShowAction {
-    return EXIT_FAILURE;
-}
-
-- (int)runSyncedAction {
-    __block OSSpinLock waitForAsync = OS_SPINLOCK_INIT;
-    
-    NSString *uuid = [[NSUserDefaults standardUserDefaults] stringForKey:@"uuid"];
-    
-    if ([uuid  length] > 0) {
-        OSSpinLockLock(&waitForAsync);
-        [[ELCachingDBProxy sharedInstance] getRegisteredRecordOfType:@"user" withUUID:uuid andCompletionHandler:^(NSDictionary *record, NSError *error) {
-            fprintf(stdout, "%s\n", [[record description] UTF8String]);
-            OSSpinLockUnlock(&waitForAsync);
-            
-        }];
-    } else {
-        OSSpinLockLock(&waitForAsync);
-        [[ELCachingDBProxy sharedInstance] getAllRegisteredRecordsOfType:@"user"
-                                                  withAttributesToReturn:@[@"shortname", @"uuid"]
-                                                    andCompletionHandler:^(NSArray<NSDictionary *> *results, NSError *error) {
-                                                        for (NSDictionary *record in results) {
-                                                            fprintf(stdout, "%s\n", [[NSString stringWithFormat:@"- %@ (%@)", [record objectForKey:@"shortname"], [record objectForKey:@"uuid"]] UTF8String]);
-                                                        }
-                                                        
-                                                        OSSpinLockUnlock(&waitForAsync);
-                                                    }];
-    }
-    OSSpinLockLock(&waitForAsync);
-    OSSpinLockUnlock(&waitForAsync);
-    return EXIT_SUCCESS;
-}
-
 - (void)showHelpAsError:(BOOL)helpAsError {
     FILE * __restrict output = helpAsError ? stderr : stdout;
     const char *command = getprogname();
     
-    fprintf(stderr, "usage: %s -action < show | join | leave | update | synced > ...\n", command);
+    fprintf(stderr, "usage: %s -action < load | unload >\n", command);
     fprintf(output, "\n");
     
-    fprintf(stderr, "%s -action show\n", command);
-    fprintf(stderr, "\tDisplay current configuration\n");
+    fprintf(stderr, "%s -action load\n", command);
+    fprintf(stderr, "\tLoad the EasyLogin OD module.\n");
+    fprintf(stderr, "\tServer to use will be found the in the io.easylogin.settings preferences' domain.\n");
     fprintf(output, "\n");
     
-    fprintf(stderr, "%s -action join -host %s ...\n", command, [kEasyLoginSampleServer UTF8String]);
-    fprintf(stderr, "\tBind to target EasyLogin server.\n");
-    fprintf(stderr, "\tIf an authentication is requiered by the server,\n\tclient certificate will be looked in system keychain.\n");
+    fprintf(stderr, "%s -action unload\n", command);
+    fprintf(stderr, "\tUnload the EasyLogin OD module.\n");
     fprintf(output, "\n");
-    
-    fprintf(stderr, "%s -action leave -host %s\n", command, [kEasyLoginSampleServer UTF8String]);
-    fprintf(stderr, "\tLeave the target server\n");
-    fprintf(stderr, "\tIf server was using certificate based authentication,\n\tcertificate will stay in system keychain.\n");
-    fprintf(output, "\n");
-    
-    fprintf(stderr, "%s -action update -host %s ...\n", command, [kEasyLoginSampleServer UTF8String]);
-    fprintf(stderr, "\tUpdate current configuration settings\n");
-    fprintf(output, "\n");
-    
-    fprintf(stderr, "%s -action synced\n", command);
-    fprintf(stderr, "\tList records synced on this computer\n");
-    fprintf(output, "\n");
-    
-    fprintf(stderr, "%s -action synced -uuid aUUIDReturnedByTheSyncedAction\n", command);
-    fprintf(stderr, "\tShow raw informations synecd for target UUID\n");
-    fprintf(output, "\n");
-    
-    fprintf(output, "Defaults values for optional arguments in current context are:\n");
-    
-    NSArray *keys = @[@"port", @"queryTimeout", @"idleTimeout", @"setupTimeout"];
-    
-    int padLength = 20;
-    
-    for (NSString *key in keys) {
-        int computedLengh = (int)[key length] + 10;
-        padLength = computedLengh > padLength ? computedLengh : computedLengh;
-    }
-    
-    for (NSString *key in keys) {
-        NSInteger value = [[NSUserDefaults standardUserDefaults] integerForKey:key];
-        int localPad = padLength - (int)[key length];
-        
-        fprintf(output, "\t-%s %*ld\n", [key UTF8String], localPad, (long)value);
-    }
 }
 
 @end

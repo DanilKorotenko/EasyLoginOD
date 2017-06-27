@@ -229,6 +229,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F8AB63CD1E111AB900FE9FC8 /* Build configuration list for PBXNativeTarget "EasyLoginOD" */;
 			buildPhases = (
+				F88185591F0231D900A54894 /* GitVersion */,
 				F8AB63B91E111AB900FE9FC8 /* Sources */,
 				F8AB63BA1E111AB900FE9FC8 /* Frameworks */,
 				F8AB63BB1E111AB900FE9FC8 /* Headers */,
@@ -258,7 +259,7 @@
 					F80BEB6A1E3C0CE600B16E32 = {
 						CreatedOnToolsVersion = 8.0;
 						DevelopmentTeam = JXHB9UP6QZ;
-						ProvisioningStyle = Manual;
+						ProvisioningStyle = Automatic;
 					};
 					F8AB63BC1E111AB900FE9FC8 = {
 						CreatedOnToolsVersion = 8.2.1;
@@ -301,6 +302,23 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		F88185591F0231D900A54894 /* GitVersion */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = GitVersion;
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -o errexit\nset -o nounset\n\nVERSION=$(git rev-list HEAD | wc -l | bc)\n\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $VERSION\" \"${INFOPLIST_FILE}\"";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		F80BEB671E3C0CE600B16E32 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -336,12 +354,14 @@
 			buildSettings = {
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CODE_SIGN_IDENTITY = "Mac Developer";
-				DEVELOPMENT_TEAM = JXHB9UP6QZ;
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -350,13 +370,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
-				CODE_SIGN_IDENTITY = "Developer ID Application";
-				DEVELOPMENT_TEAM = JXHB9UP6QZ;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -471,6 +493,7 @@
 					"$(SDKROOT)/usr/lib/system",
 				);
 				MACH_O_TYPE = mh_execute;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = "-lodmodule";
 				PRODUCT_BUNDLE_IDENTIFIER = io.easylogin.EasyLoginOD;
 				PRODUCT_NAME = io.easylogin.EasyLoginOD;
@@ -503,6 +526,7 @@
 					"$(SDKROOT)/usr/lib/system",
 				);
 				MACH_O_TYPE = mh_execute;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = "-lodmodule";
 				PRODUCT_BUNDLE_IDENTIFIER = io.easylogin.EasyLoginOD;
 				PRODUCT_NAME = io.easylogin.EasyLoginOD;

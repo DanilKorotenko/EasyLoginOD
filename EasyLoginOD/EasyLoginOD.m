@@ -290,7 +290,6 @@ static eODCallbackResponse ELRecordVerifyPassword(od_request_t request, od_conne
     
     odrequest_log_message(request, eODLogInfo, CFSTR("Password validation requested for `%s` of type `%s`"), recordname, record_type);
 
-    
     NSDictionary * userInfo = CFBridgingRelease(xpctype_to_cftype(addinfo_dict));
     
     [[ELAsyncBlockToManageAsOperation runOnSharedQueueOperationWithAsyncTask:^(ELAsyncBlockToManageAsOperation *currentOperation) {
@@ -350,50 +349,88 @@ static eODCallbackResponse ELRecordChangePassword(od_request_t request, od_conne
     
     odrequest_log_message(request, eODLogInfo, CFSTR("Password change requested for `%s` of type `%s`"), recordname, record_type);
     
-    if (addinfo_dict) {
-        NSDictionary * userInfo = CFBridgingRelease(xpctype_to_cftype(addinfo_dict));
-        odrequest_log_message(request, eODLogError, CFSTR("Password change requested for `%s` of type `%s` with unsupported additional info: %@"), recordname, record_type, userInfo);
-    }
+    NSDictionary * userInfo = CFBridgingRelease(xpctype_to_cftype(addinfo_dict));
     
     __block BOOL success = YES;
     __block NSInteger errorCode = 0;
+    
     [[ELAsyncBlockToManageAsOperation runOnSharedQueueOperationWithAsyncTask:^(ELAsyncBlockToManageAsOperation *currentOperation) {
-        [[ELCachingDBProxy sharedInstance] getRegisteredRecordUUIDsOfType:[NSString stringWithUTF8String:record_type]
-                                                    matchingAllAttributes:@{@"shortname": [NSString stringWithUTF8String:recordname]}
-                                                              andCompletionHandler:^(NSArray<NSString*> *results, NSError *error) {
-                                                                  if ([results count] == 1) {
-                                                                      
-                                                                      [[ELServer sharedInstance] getRecordWithEntityClass:[ELUser recordClass] andUniqueIdentifier:[results lastObject] completionBlock:^(__kindof ELRecord * _Nullable record, NSError * _Nullable error) {
-                                                                          [[ELServer sharedInstance] updateRecord:record
-                                                                                                  withNewPassword:[NSString stringWithUTF8String:new_password]
-                                                                                                 usingOldPassword:[NSString stringWithUTF8String:old_password]
-                                                                                                  completionBlock:^(__kindof ELRecord * _Nullable updatedRecord, NSError * _Nullable error) {
-                                                                                                      if (!error) {
-                                                                                                          success = YES;
-                                                                                                          errorCode = 0;
-                                                                                                      } else {
-                                                                                                          success = NO;
-                                                                                                          errorCode = error.code;
-                                                                                                      }
-                                                                                                      [currentOperation considerThisOperationAsDone];
-                                                                                                  }];
-                                                                      }];
+        Class<ELRecordProtocol> recordClass = Nil;
+        NSString *recordType = [NSString stringWithUTF8String:record_type];
+        if ([@"user" isEqualToString:recordType]) {
+            recordClass = [ELUser recordClass];
+        }
+        
+        if (recordClass) {
+            [[ELServer sharedInstance] getRecordWithEntityClass:recordClass
+                                            andUniqueIdentifier:[[[userInfo objectForKey:@"user details"] objectForKey:kODAttributeTypeGUID] lastObject]
+                                                completionBlock:^(__kindof ELRecord * _Nullable record, NSError * _Nullable error) {
+                                                    if (record) {
+                                                        if ([[ELODToolbox sharedInstance] validatePassword:[NSString stringWithUTF8String:old_password]
+                                                                              againstAuthenticationMethods:[[record.properties dictionaryRepresentation] objectForKey:@"authMethods"]]) {
+                                                            
+                                                            [[ELServer sharedInstance] updateRecord:record
+                                                                                    withNewPassword:[NSString stringWithUTF8String:new_password]
+                                                                                   usingOldPassword:[NSString stringWithUTF8String:old_password]
+                                                                                    completionBlock:^(__kindof ELRecord * _Nullable record, BOOL success, NSError * _Nullable error) {
+                                                                                        if (!error) {
+                                                                                            if ([[ELODToolbox sharedInstance] validatePassword:[NSString stringWithUTF8String:new_password]
+                                                                                                                  againstAuthenticationMethods:[[record.properties dictionaryRepresentation] objectForKey:@"authMethods"]]) {
+                                                                                                
+                                                                                                [[ELCachingDBProxy sharedInstance] registerRecord:[record.properties dictionaryRepresentation]
+                                                                                                                                           ofType:record.recordEntity
+                                                                                                                                         withUUID:record.identifier];
+                                                                                                
+                                                                                                success = YES;
+                                                                                                errorCode = 0;
+                                                                                            } else {
+                                                                                                success = NO;
+                                                                                                errorCode = 2;
+                                                                                            }
+                                                                                        } else {
+                                                                                            success = NO;
+                                                                                            errorCode = error.code;
+                                                                                        }
+                                                                                        [currentOperation considerThisOperationAsDone];
+                                                                                        
+                                                                                    }];
+                                                        } else {
+                                                            success = NO;
+                                                            errorCode = 1;
+                                                            [currentOperation considerThisOperationAsDone];
+                                                            
+                                                        }
+                                                        
+                                                    } else {
+                                                        success = NO;
+                                                        errorCode = error.code;
+                                                        [currentOperation considerThisOperationAsDone];
+                                                    }
 
-                                                                  } else {
-                                                                      success = NO;
-                                                                      errorCode = error.code;
-                                                                      [currentOperation considerThisOperationAsDone];
-                                                                  }
-                                                              }];
+                                                }];
+            
+        } else {
+            success = NO;
+            errorCode = 3;
+            [currentOperation considerThisOperationAsDone];
+
+        }
     }
                                                       withCancelationHandler:nil
-                                                                 andUserInfo:nil] waitUntilFinished];
+                                                                 andUserInfo:nil]waitUntilFinished];
+    
     if (success) {
         odrequest_respond_success(request);
     } else if (errorCode == 404) {
         odrequest_respond_error(request, kODErrorCredentialsServerNotFound, NULL);
     } else if (errorCode == -1009) {
         odrequest_respond_error(request, kODErrorCredentialsServerUnreachable, NULL);
+    } else if (errorCode == 1) {
+        odrequest_respond_error(request, kODErrorCredentialsInvalid, NULL);
+    } else if (errorCode == 2) {
+        odrequest_respond_error(request, kODErrorCredentialsOperationFailed, NULL);
+    } else if (errorCode == 3) {
+        odrequest_respond_error(request, kODErrorNodeUnknownType, NULL);
     } else {
         odrequest_respond_error(request, kODErrorCredentialsServerCommunicationError, NULL);
     }
@@ -979,7 +1016,7 @@ int main(int argc, const char *argv[])
         .odm_RecordChangePassword = ELRecordChangePassword,
         
         .odm_RecordAuthenticationAllowed = ELRecordAuthenticationAllowed,
-        //        .odm_RecordPasswordChangeAllowed = ELRecordPasswordChangeAllowed,
+        .odm_RecordPasswordChangeAllowed = ELRecordPasswordChangeAllowed,
         //        .odm_RecordWillPasswordExpire = ELRecordWillPasswordExpire,
         //        .odm_RecordSecondsUntilPasswordExpires = ELRecordSecondsUntilPasswordExpires,
         

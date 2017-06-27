@@ -98,13 +98,6 @@
         return EXIT_FAILURE;
     }
     
-    odConfig.queryTimeoutInSeconds = self.queryTimeout;
-    odConfig.connectionIdleTimeoutInSeconds = self.idleTimeout;
-    odConfig.connectionSetupTimeoutInSeconds = self.setupTimeout;
-    
-    odConfig.preferredDestinationHostName = self.host;
-    odConfig.preferredDestinationHostPort = self.port;
-    
     ODMappings *odMaps = [ODMappings mappings];
 //    odMaps.function = [NSString stringWithFormat:@"%@:translate_recordtype", kEasyLoginODModuleBundleName];
     odConfig.defaultMappings = odMaps;

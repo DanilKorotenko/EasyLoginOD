@@ -372,7 +372,7 @@ static eODCallbackResponse ELRecordChangePassword(od_request_t request, od_conne
                                                             [[ELServer sharedInstance] updateRecord:record
                                                                                     withNewPassword:[NSString stringWithUTF8String:new_password]
                                                                                    usingOldPassword:[NSString stringWithUTF8String:old_password]
-                                                                                    completionBlock:^(__kindof ELRecord * _Nullable record, BOOL success, NSError * _Nullable error) {
+                                                                                    completionBlock:^(__kindof ELRecord * _Nullable record, NSError * _Nullable error) {
                                                                                         if (!error) {
                                                                                             if ([[ELODToolbox sharedInstance] validatePassword:[NSString stringWithUTF8String:new_password]
                                                                                                                   againstAuthenticationMethods:[[record.properties dictionaryRepresentation] objectForKey:@"authMethods"]]) {

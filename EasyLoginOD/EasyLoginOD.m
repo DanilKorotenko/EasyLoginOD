@@ -12,7 +12,6 @@
 #import "ELODToolbox.h"
 #import <EasyLogin/EasyLogin.h>
 
-
 #if __has_feature(objc_arc)
 #error OD modules can not be built with ARC enabled.
 // In theory OD objects should be like OS objects, and thus compatible
@@ -78,7 +77,7 @@ static void ELModuleInit(od_module_t module)
     
     
     odmodule = module; /* no need to retain this object, it has the lifetime of the service */
-    odrequest_log_message(NULL, eODLogInfo, CFSTR("Initialization request recieved"));
+    os_log_info(OS_LOG_DEFAULT, "Initialization request recieved");
 }
 
 
@@ -88,10 +87,8 @@ static void ELModuleInit(od_module_t module)
  */
 static void ELConfigLoaded(od_request_t request, od_moduleconfig_t moduleconfig)
 {
-    
     //	odmoduleconfig_set_context(moduleconfig, myContext, myContextDeallocator)
-    
-    odrequest_log_message(request, eODLogInfo, CFSTR("Configuration loaded"));
+    os_log_info(OS_LOG_DEFAULT, "Configuration loaded");
 }
 
 
@@ -107,7 +104,7 @@ static void ELConfigLoaded(od_request_t request, od_moduleconfig_t moduleconfig)
 //static xpc_object_t
 //ELParseDynamicDestination(od_request_t request, od_moduleconfig_t moduleconfig, const char *destination)
 //{
-//    odrequest_log_message(request, eODLogInfo, CFSTR("Dynamic destination requested"));
+//    os_log_info(OS_LOG_DEFAULT, "Dynamic destination requested"));
 //
 //    xpc_object_t dict = xpc_dictionary_create(NULL, NULL, 0);
 //
@@ -131,9 +128,7 @@ static void ELConfigLoaded(od_request_t request, od_moduleconfig_t moduleconfig)
 static uint32_t reconnect_cb(od_connection_t connection, od_request_t request, void *context)
 {
     BOOL reconnectOK = YES;
-    
-    odrequest_log_message(request, eODLogInfo, CFSTR("Connection to database done with %@"), reconnectOK ? CFSTR("success") : CFSTR("failure"));
-    
+    os_log_info(OS_LOG_DEFAULT, "Connection to database done with %s", reconnectOK ? "success" : "failure");
     return reconnectOK ? kODErrorSuccess : kODErrorNodeConnectionFailed;
 }
 
@@ -150,7 +145,7 @@ static uint32_t reconnect_cb(od_connection_t connection, od_request_t request, v
  */
 static void disconnect_cb(od_connection_t connection, __unused int sock, void *context)
 {
-    odrequest_log_message(NULL, eODLogInfo, CFSTR("Disconnect from database"));
+    os_log_info(OS_LOG_DEFAULT, "Disconnect from database");
 }
 
 
@@ -171,9 +166,7 @@ static od_connection_t ELCreateConnectionWithOptions(od_request_t request, od_mo
         .reconnect_cb = reconnect_cb,
         .disconnect_cb = disconnect_cb,
     };
-    
-    odrequest_log_message(request, eODLogInfo, CFSTR("Creating database connection"));
-    
+    os_log_info(OS_LOG_DEFAULT, "Creating database connection");
     return odconnection_create_ext(moduleconfig, request, CFSTR("EasyLogin"), NULL, credential, flags, idle_timeout, &info);
 }
 
@@ -186,7 +179,7 @@ static od_connection_t ELCreateConnectionWithOptions(od_request_t request, od_mo
  */
 static xpc_object_t ELCopyDetails(od_request_t request, od_connection_t connection)
 {
-    odrequest_log_message(request, eODLogInfo, CFSTR("Got request for node info"));
+    os_log_info(OS_LOG_DEFAULT, "Got request for node info");
     
     xpc_object_t dict = xpc_dictionary_create(NULL, NULL, 0);
     
@@ -229,7 +222,7 @@ static xpc_object_t ELCopyAuthInfo(od_request_t request, od_moduleconfig_t modul
      * in the future.
      */
     
-    odrequest_log_message(request, eODLogInfo, CFSTR("Got request for authentication infos"));
+    os_log_info(OS_LOG_DEFAULT, "Got request for authentication infos");
     
     switch (info) {
         case eODAuthInfoAttributes:
@@ -288,7 +281,7 @@ static eODCallbackResponse ELRecordVerifyPassword(od_request_t request, od_conne
     
 #warning (ygi) Passwords sent to this method seems to always be in clear text when comming from the loginwindow or the shell. We need to check how this work when using file sharing and screen sharing.
     
-    odrequest_log_message(request, eODLogInfo, CFSTR("Password validation requested for `%s` of type `%s`"), recordname, record_type);
+    os_log_info(OS_LOG_DEFAULT, "Password validation requested for `%s` of type `%s`", recordname, record_type);
 
     NSDictionary * userInfo = CFBridgingRelease(xpctype_to_cftype(addinfo_dict));
     
@@ -297,17 +290,16 @@ static eODCallbackResponse ELRecordVerifyPassword(od_request_t request, od_conne
                                                             withUUID:[[[userInfo objectForKey:@"user details"] objectForKey:kODAttributeTypeGUID] lastObject]
                                                 andCompletionHandler:^(NSDictionary *record, NSError *error) {
                                                     if (error) {
-                                                        odrequest_log_message(request, eODLogError, CFSTR("Unexpected error when retriving record for user `%s`: %@"), recordname, error);
+                                                        os_log_error(OS_LOG_DEFAULT, "Unexpected error when retriving record for user `%s`: %s", recordname, [[error localizedDescription] UTF8String]);
                                                         odrequest_respond_error(request, kODErrorCredentialsServerError, NULL);
                                                     } else {
-                                                        odrequest_log_message(request, eODLogInfo, CFSTR("Authentication infos found, validating password"));
-                                                        
+                                                        os_log_info(OS_LOG_DEFAULT, "Authentication infos found, validating password");
                                                         if ([[ELODToolbox sharedInstance] validatePassword:[NSString stringWithUTF8String:password]
                                                                               againstAuthenticationMethods:[record objectForKey:@"authMethods"]]) {
-                                                            odrequest_log_message(request, eODLogInfo, CFSTR("Authentication done with success"));
+                                                            os_log_info(OS_LOG_DEFAULT, "Authentication done with success");
                                                             odrequest_respond_error(request, kODErrorSuccess, NULL);
                                                         } else {
-                                                            odrequest_log_message(request, eODLogInfo, CFSTR("Authentication done with failure"));
+                                                            os_log_info(OS_LOG_DEFAULT, "Authentication done with failure");
                                                             odrequest_respond_error(request, kODErrorCredentialsInvalid, NULL);
                                                         }
                                                     }
@@ -335,8 +327,7 @@ static eODCallbackResponse ELRecordVerifyPasswordExtended(od_request_t request, 
     //
     //	return odrequest_respond_authentication_continuation(request, auth_ctx, result_array);
 
-    odrequest_log_message(request, eODLogInfo, CFSTR("Extended password validation of type `%s` requested for `%s` of type `%s`"), auth_type, recordname, record_type);
-
+    os_log_info(OS_LOG_DEFAULT, "Extended password validation of type `%s` requested for `%s` of type `%s`", auth_type, recordname, record_type);
     return eODCallbackResponseSkip;
 }
 
@@ -347,8 +338,7 @@ static eODCallbackResponse ELRecordChangePassword(od_request_t request, od_conne
      * the existing connection credentials should be used to attempt the password change.  An appropriate error should be returned if necessary.
      */
     
-    odrequest_log_message(request, eODLogInfo, CFSTR("Password change requested for `%s` of type `%s`"), recordname, record_type);
-    
+    os_log_info(OS_LOG_DEFAULT, "Password change requested for `%s` of type `%s`", recordname, record_type);
     NSDictionary * userInfo = CFBridgingRelease(xpctype_to_cftype(addinfo_dict));
     
     __block BOOL success = YES;
@@ -499,8 +489,7 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
         [standardPredicateList enumerateObjectsUsingBlock:^(NSDictionary * _Nonnull predicateDict, NSUInteger idx, BOOL * _Nonnull stop) {
             [humanReadablePredicateList addObject:[ELODToolbox humanReadableODPredicateDictionary:predicateDict]];
         }];
-        
-        odrequest_log_message(request, eODLogDebug, CFSTR("Handling search request with predicate:%@"), [ELODToolbox singleLineDescriptionForObject:humanReadablePredicateList]);
+        os_log_debug(OS_LOG_DEFAULT, "Handling search request with predicate:%s", [[ELODToolbox singleLineDescriptionForObject:humanReadablePredicateList] UTF8String]);
     }
     
     NSArray<NSDictionary*> *nativePredicateList = [ELODToolbox nativePredicatesEquivalence:standardPredicateList];
@@ -509,19 +498,17 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
         [[ELCachingDBProxy sharedInstance] getAllRegisteredRecordsMatchingPredicates:nativePredicateList
                                                                withCompletionHandler:^(NSArray<NSDictionary *> *results, NSError *error) {
                                                                    if (error) {
-                                                                       odrequest_log_message(request, eODLogError, CFSTR("Unexpected error when handling predicates: %@"), error);
+                                                                       os_log_error(OS_LOG_DEFAULT, "Unexpected error when handling predicates: %s", [[error localizedDescription] UTF8String]);
                                                                    } else {
-                                                                       odrequest_log_message(request, eODLogInfo, CFSTR("Records found matching predicate criteria: %lu"), (unsigned long)[results count]);
-                                                                       
+                                                                       os_log_info(OS_LOG_DEFAULT, "Records found matching predicate criteria: %lu", (unsigned long)[results count]);
                                                                        
                                                                        for (NSDictionary *record in results) {
                                                                            NSString *nativeRecordType = [record objectForKey:@"recordType"];
-                                                                           
-                                                                           odrequest_log_message(request, eODLogInfo, CFSTR("Full record loaded, sending back the answer"));
+                                                                           os_log_info(OS_LOG_DEFAULT, "Full record loaded, sending back the answer");
                                                                            NSDictionary *standardUserInfo = [[ELODToolbox sharedInstance] standardInfoFromNativeInfo:record ofType:nativeRecordType];
                                                                            
                                                                            if (log_level_enabled(eODLogDebug)) {
-                                                                               odrequest_log_message(request, eODLogDebug, CFSTR("Record content is: %@"), [ELODToolbox singleLineDescriptionForObject:standardUserInfo]);
+                                                                               os_log_debug(OS_LOG_DEFAULT, "Record content is: %s", [[ELODToolbox singleLineDescriptionForObject:standardUserInfo] UTF8String]);
                                                                            }
                                                                            
                                                                            xpc_object_t resultDict = cftype_to_xpctype(standardUserInfo);
@@ -555,7 +542,7 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
 //     *  the request, but other eODCallbackResponseXxx values are allowed.
 //     */
 //
-//    odrequest_log_message(request, eODLogInfo, CFSTR("Synchronization request recieved, not supported at this time"));
+//    os_log_info(OS_LOG_DEFAULT, "Synchronization request recieved, not supported at this time"));
 //
 //    return eODCallbackResponseSkip;
 //}
@@ -574,7 +561,7 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
 //     *  the request, but other eODCallbackResponseXxx values are allowed.
 //     */
 //
-//    odrequest_log_message(request, eODLogInfo, CFSTR("Cancelation request recieved, not supported at this time"));
+//    os_log_info(OS_LOG_DEFAULT, "Cancelation request recieved, not supported at this time"));
 //
 //    return eODCallbackResponseSkip;
 //}
@@ -584,7 +571,7 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
 //static eODCallbackResponse ELNodeCopyPolicies(od_request_t request, od_connection_t connection)
 //{
 //    /* Responds to a request to fetch the node policy (i.e., global policy) */
-//    odrequest_log_message(request, eODLogInfo, CFSTR("Node policy request recieved, not supported at this time"));
+//    os_log_info(OS_LOG_DEFAULT, "Node policy request recieved, not supported at this time"));
 //    return eODCallbackResponseSkip;
 //}
 
@@ -592,7 +579,7 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
 //{
 //    /* responds with a dictionary of supported policies */
 //
-//    odrequest_log_message(request, eODLogInfo, CFSTR("Supported node policy request recieved, not supported at this time"));
+//    os_log_info(OS_LOG_DEFAULT, "Supported node policy request recieved, not supported at this time"));
 //    return eODCallbackResponseSkip;
 //}
 
@@ -607,14 +594,14 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
 
 //static eODCallbackResponse ELRecordCopyPolicies(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, xpc_object_t addinfo_dict)
 //{
-//    odrequest_log_message(request, eODLogInfo, CFSTR("Record policy request recieved, not supported at this time"));
+//    os_log_info(OS_LOG_DEFAULT, "Record policy request recieved, not supported at this time"));
 //    /* returns the current policy for this record */
 //    return eODCallbackResponseSkip;
 //}
 
 //static eODCallbackResponse ELRecordCopyEffectivePolicies(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, xpc_object_t addinfo_dict)
 //{
-//    odrequest_log_message(request, eODLogInfo, CFSTR("Record effective policy request recieved, not supported at this time"));
+//    os_log_info(OS_LOG_DEFAULT, "Record effective policy request recieved, not supported at this time"));
 //    /* returns the effective policy for this record (combining the node policy with the record policy) */
 //    return eODCallbackResponseSkip;
 //}
@@ -622,7 +609,7 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
 //static eODCallbackResponse ELRecordCopySupportedPolicies(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, xpc_object_t addinfo_dict)
 //{
 //
-//    odrequest_log_message(request, eODLogInfo, CFSTR("Record supported policy request recieved, not supported at this time"));
+//    os_log_info(OS_LOG_DEFAULT, "Record supported policy request recieved, not supported at this time"));
 //    /* returns the policies supported by this record */
 //    return eODCallbackResponseSkip;
 //}
@@ -632,30 +619,27 @@ static eODCallbackResponse ELQueryCreateWithPredicates(od_request_t request, od_
 
 static eODCallbackResponse ELRecordAuthenticationAllowed(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, xpc_object_t addinfo_dict)
 {
-    odrequest_log_message(request, eODLogInfo, CFSTR("Checking if record has right to get authenticated"));
-
+    os_log_info(OS_LOG_DEFAULT, "Checking if record has right to get authenticated");
     odrequest_respond_success(request);
-    
     return eODCallbackResponseAccepted;
 }
 
 static eODCallbackResponse ELRecordPasswordChangeAllowed(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, const char *password, xpc_object_t addinfo_dict)
 {
-    odrequest_log_message(request, eODLogInfo, CFSTR("Checking if record has right to change its password"));
+    os_log_info(OS_LOG_DEFAULT, "Checking if record has right to change its password");
     odrequest_respond_success(request);
-
     return eODCallbackResponseAccepted;
 }
 
 //static eODCallbackResponse ELRecordWillPasswordExpire(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, int64_t expires_in, xpc_object_t addinfo_dict)
 //{
-//    odrequest_log_message(request, eODLogInfo, CFSTR("Checking if record's password will expire"));
+//    os_log_info(OS_LOG_DEFAULT, "Checking if record's password will expire"));
 //    return eODCallbackResponseSkip;
 //}
 //
 //static eODCallbackResponse ELRecordSecondsUntilPasswordExpires(od_request_t request, od_connection_t connection, const char *record_type, const char *metarecordname, const char *recordname, xpc_object_t addinfo_dict)
 //{
-//    odrequest_log_message(request, eODLogInfo, CFSTR("Sending time in second before password expiration"));
+//    os_log_info(OS_LOG_DEFAULT, "Sending time in second before password expiration"));
 //    return eODCallbackResponseSkip;
 //}
 
@@ -673,7 +657,7 @@ static eODCallbackResponse ELRecordPasswordChangeAllowed(od_request_t request, o
 //     * If additional work is required, then that work can eiher be handled directly or done asynchronously.  The module
 //     * must return eODCallbackResponseAccepted if it is to be handled, or use the return from the odrequest_respond* APIs.
 //     */
-//    odrequest_log_message(request, eODLogInfo, CFSTR("Credential set for node. Not supported at this time"));
+//    os_log_info(OS_LOG_DEFAULT, "Credential set for node. Not supported at this time"));
 //
 //    return eODCallbackResponseSkip;
 //}
